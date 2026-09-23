@@ -388,3 +388,183 @@ Tolong rangkumkan intinya, beri tahu taktik untuk Kenya, dan buatkan pidato bala
   }
 }
 
+export function getOfflineCoDelegateFallback(userMessage: string): {
+  reply: string;
+  speechCard?: { english: string; caraBaca: string; indoMeaning: string };
+  shortcut?: { label: string; tabId: string };
+} {
+  const msg = userMessage.toLowerCase();
+
+  if (msg.includes('roll call') || msg.includes('absen') || msg.includes('panggil')) {
+    return {
+      reply: `Tenang Salman! 🇰🇪 Saat nama **Republic of Kenya** dipanggil oleh Chair di awal sesi (Roll Call), kamu cukup angkat placard Kenya tinggi-tinggi dan ucapkan kalimat berikut:`,
+      speechCard: {
+        english: 'Present and Voting.',
+        caraBaca: 'Pre-sent end Fow-ting.',
+        indoMeaning: 'Hadir dan siap memberikan suara pada setiap voting.'
+      },
+      shortcut: { label: 'Buka Contekan Darurat ⚡', tabId: 'cheatsheet' }
+    };
+  }
+
+  if (msg.includes('toilet') || msg.includes('kencing') || msg.includes('izin') || msg.includes('keluar')) {
+    return {
+      reply: `Kalau kamu mau izin ke toilet saat sidang berlangsung, jangan langsung nyelonong keluar ya! Angkat placard kamu dan ajukan **Point of Personal Privilege**:`,
+      speechCard: {
+        english: 'Point of Personal Privilege, Chair. Permission to be excused to the restroom.',
+        caraBaca: 'Poin of Per-so-nel Pri-fi-lij, Cyeer. Per-mi-syon tu bi eks-kyusd tu de rest-rum.',
+        indoMeaning: 'Interupsi hak pribadi pimpinan, izin ke kamar mandi.'
+      },
+      shortcut: { label: 'Lihat Semua Interupsi ⚡', tabId: 'cheatsheet' }
+    };
+  }
+
+  if (msg.includes('pidato') || msg.includes('bicara') || msg.includes('podium') || msg.includes('gsl')) {
+    return {
+      reply: `Siap Salman! Ini naskah pidato resmi Kenya yang paling aman dan berbobot. Kamu tinggal baca lafal fonetik di bawah ini dengan tenang:`,
+      speechCard: {
+        english: 'Honorable Chair, the Delegation of Kenya affirms that survivor rehabilitation begins with guaranteed education. Under the Children Act 2022, Kenya mandates unconditional school access. Kenya yields its time to the Dais.',
+        caraBaca: 'O-nor-e-bel Cyeer, de De-le-ge-syon of Ken-ya e-ferms det ser-vai-ver ri-he-bi-li-te-syon bi-gins wit ge-ren-tid e-dyu-key-syon. An-der de Cyil-dren Ekt tu tau-sen tu-wen-ti tu, Ken-ya men-dets an-kon-di-syo-nel skul ek-ses. Ken-ya yilds its taim tu de Dais.',
+        indoMeaning: 'Pimpinan yang terhormat, Delegasi Kenya menegaskan bahwa pemulihan penyintas berawal dari jaminan pendidikan tanpa syarat akta lahir.'
+      },
+      shortcut: { label: 'Buka Layar Penuh Teleprompter 🎙️', tabId: 'teleprompter' }
+    };
+  }
+
+  if (msg.includes('dengar') || msg.includes('lawan') || msg.includes('nyerang') || msg.includes('ngomong')) {
+    return {
+      reply: `Kalau ada delegasi lain yang lagi bicara di podium dan kamu bingung apa maksudnya:
+1. Buka tab **Dengar Lawan & Tangkis**.
+2. Pilih nama negara mereka.
+3. Klik tombol topik cepat (misal: Bahas Dana atau Perbatasan).
+4. AI langsung rangkumkan artinya dan siapkan naskah sanggahan siap baca!`,
+      shortcut: { label: 'Buka Dengar Lawan Sekarang 🎧', tabId: 'listener' }
+    };
+  }
+
+  // Default friendly advice
+  return {
+    reply: `Halo Salman! Nata di sini menemani kamu. 🇰🇪
+Jangan panik ya, sebagai solo delegate kamu hebat banget sudah berani tampil!
+
+Kamu mau aku bantu apa sekarang?
+1. **Lagi Roll Call?** Ketik: *"aku harus ngomong apa pas dipanggil?"*
+2. **Mau pidato di depan?** Ketik: *"bikinin pidato 45 detik"*
+3. **Ada negara lain yang lagi pidato?** Ketik: *"negara X lagi ngomongin apa?"*
+4. **Mau izin ke toilet?** Ketik: *"cara izin ke toilet"*`,
+    shortcut: { label: 'Buka Dengar Lawan 🎧', tabId: 'listener' }
+  };
+}
+
+export async function chatWithCoDelegate({
+  history,
+  userMessage,
+  model = 'nemotron-3-ultra',
+  apiKey = 'sk-guts-83d0dcdcfcf1dc76ae8aaf946815626cbf04ebd3',
+  baseUrl = 'https://api.gutsai.id/v1'
+}: {
+  history: { role: 'user' | 'assistant'; content: string }[];
+  userMessage: string;
+  model?: string;
+  apiKey?: string;
+  baseUrl?: string;
+}): Promise<{
+  reply: string;
+  speechCard?: {
+    english: string;
+    caraBaca: string;
+    indoMeaning: string;
+  };
+  shortcut?: {
+    label: string;
+    tabId: string;
+  };
+}> {
+  const systemPrompt = `Kamu adalah Nata, Virtual Co-Delegate dari Republik Kenya di komite UNICEF pada simulasi sidang PBB (PUMUN Regeneration 2026 - SDC 1.0).
+Rekan delegasimu adalah Muhamad Salman (seorang solo delegate pemula).
+Salman SAMA SEKALI TIDAK BISA BAHASA INGGRIS (0 Inggris) dan belum mengerti alur sidang ataupun cara menggunakan fitur-fitur teknis.
+Tugas utamamu adalah mendampingi Salman secara personal:
+1. Bersikaplah seperti rekan tim yang hangat, tenang, solutif, dan suportif ("Tenang Salman, aku temenin kamu. Biar aku yang atur taktiknya").
+2. Jawab pertanyaan Salman dalam Bahasa Indonesia sehari-hari yang mudah dipahami. Jangan pakai istilah rumit tanpa menjelaskannya.
+3. Jika Salman bingung harus bertindak apa: Berikan instruksi langkah demi langkah yang sangat sederhana.
+4. Jika Salman butuh berbicara (misal di podium, saat roll call, sanggahan, atau interupsi):
+   - Tuliskan naskah resmi Bahasa Inggris.
+   - WAJIB berikan "Cara Baca" dalam ejaan fonetik suku kata Bahasa Indonesia santai (contoh: "O-nor-e-bel Cyeer, Ken-ya yilds its taim...").
+   - Jelaskan artinya dalam 1 kalimat.
+5. Format naskah siap baca jika ada:
+   Gunakan format jelas ini di akhir jawaban:
+   ### Naskah Siap Baca
+   **Inggris:** [Kalimat Inggris resmi]
+   **Cara Baca:** [Lafal suku kata Indonesia]
+   **Arti:** [Terjemahan Indonesia]`;
+
+  try {
+    const targetUrl = getEffectiveBaseUrl(baseUrl);
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      ...history.slice(-6).map(m => ({ role: m.role, content: m.content })),
+      { role: 'user', content: userMessage }
+    ];
+
+    const response = await fetch(`${targetUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: model || 'nemotron-3-ultra',
+        messages,
+        temperature: 0.7,
+        max_tokens: 800
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Chat API error HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    const rawContent = data?.choices?.[0]?.message?.content;
+    if (!rawContent) {
+      throw new Error('Empty response from model');
+    }
+
+    // Parse speechCard if model provided one
+    let speechCard: { english: string; caraBaca: string; indoMeaning: string } | undefined;
+    const cardMatch = rawContent.match(/###\s*Naskah Siap Baca[\s\S]*?\*\*Inggris:\*\*\s*([^\n]+)[\s\S]*?\*\*Cara Baca:\*\*\s*([^\n]+)[\s\S]*?\*\*Arti:\*\*\s*([^\n]+)/i);
+    if (cardMatch) {
+      speechCard = {
+        english: cardMatch[1].trim(),
+        caraBaca: cardMatch[2].trim(),
+        indoMeaning: cardMatch[3].trim()
+      };
+    }
+
+    // Detect contextual shortcut
+    let shortcut: { label: string; tabId: string } | undefined;
+    const lowerUser = userMessage.toLowerCase();
+    if (lowerUser.includes('roll call') || lowerUser.includes('toilet') || lowerUser.includes('interupsi') || lowerUser.includes('izin')) {
+      shortcut = { label: 'Buka Contekan Darurat ⚡', tabId: 'cheatsheet' };
+    } else if (lowerUser.includes('dengar') || lowerUser.includes('lawan') || lowerUser.includes('omong') || lowerUser.includes('nyerang')) {
+      shortcut = { label: 'Buka Dengar Lawan 🎧', tabId: 'listener' };
+    } else if (lowerUser.includes('pidato') || lowerUser.includes('gsl') || lowerUser.includes('podium') || lowerUser.includes('bicara')) {
+      shortcut = { label: 'Buka Teleprompter 🎙️', tabId: 'teleprompter' };
+    } else if (lowerUser.includes('pospap') || lowerUser.includes('position paper') || lowerUser.includes('word') || lowerUser.includes('download')) {
+      shortcut = { label: 'Buka Position Paper 📄', tabId: 'pospap' };
+    } else if (lowerUser.includes('negara') || lowerUser.includes('sekutu') || lowerUser.includes('uganda') || lowerUser.includes('amerika')) {
+      shortcut = { label: 'Buka 22 Negara Intel 🌍', tabId: 'countries' };
+    }
+
+    return {
+      reply: rawContent,
+      speechCard,
+      shortcut
+    };
+  } catch (err) {
+    console.warn('AI Co-Delegate chat fallback triggered:', err);
+    return getOfflineCoDelegateFallback(userMessage);
+  }
+}
+
+

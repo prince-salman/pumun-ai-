@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
+import CoDelegateChat from './components/CoDelegateChat';
 import DebateListener from './components/DebateListener';
 import SpeechTeleprompter from './components/SpeechTeleprompter';
 import DebateRadar from './components/DebateRadar';
@@ -12,7 +13,7 @@ import { useSettings } from './hooks/useSettings';
 import { ShieldCheck } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<string>('listener');
+  const [activeTab, setActiveTab] = useState<string>('chat');
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const { settings, updateSetting, resetSettings } = useSettings();
 
@@ -29,6 +30,12 @@ export default function App() {
 
       {/* Main Workstation Container */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {activeTab === 'chat' && (
+          <CoDelegateChat 
+            settings={settings} 
+            onNavigate={(tab) => setActiveTab(tab)} 
+          />
+        )}
         {activeTab === 'listener' && <DebateListener settings={settings} />}
         {activeTab === 'teleprompter' && <SpeechTeleprompter settings={settings} />}
         {activeTab === 'radar' && <DebateRadar settings={settings} />}

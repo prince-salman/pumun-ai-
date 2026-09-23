@@ -168,4 +168,20 @@ export interface SpeechAnalysisResult {
   counterSpeech: SpeechData;
 }
 
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'nata';
+  text: string;
+  timestamp: string;
+  speechCard?: {
+    english: string;
+    caraBaca: string;
+    indoMeaning: string;
+  };
+  shortcut?: {
+    label: string;
+    tabId: string;
+  };
+}
+
 

@@ -1,8 +1,9 @@
 import React from 'react';
 import { 
+  MessageSquare,
   Headphones,
   Mic, 
-  Radar,
+  Radar, 
   Zap, 
   FileText, 
   Globe, 
@@ -32,6 +33,7 @@ export default function Navbar({ activeTab, setActiveTab, settings, updateSettin
   };
 
   const navItems = [
+    { id: 'chat', label: 'Tanya Nata (Chat AI)', icon: MessageSquare, badge: 'Asisten' },
     { id: 'listener', label: 'Dengar Lawan & Tangkis', icon: Headphones, badge: 'Live' },
     { id: 'teleprompter', label: 'Pidato Saya', icon: Mic },
     { id: 'cheatsheet', label: 'Contekan Darurat', icon: Zap },

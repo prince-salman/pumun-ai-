@@ -4,16 +4,22 @@ import React from 'react';
 import App from './App';
 
 describe('App Integration Test', () => {
-  it('renders navbar, Kenya badge, and default Dengar Lawan & Tangkis tab', () => {
+  it('renders navbar, Kenya badge, and default Tanya Nata (Chat AI) tab', () => {
     render(<App />);
     expect(screen.getByText(/KENYA CO-DELEGATE/i)).toBeInTheDocument();
     expect(screen.getByText(/Muhamad Salman \(Solo\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/Dengar Lawan & Buat Sanggahan Kilat/i)).toBeInTheDocument();
+    expect(screen.getByText(/Nata \(Virtual Co-Delegate\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Partner Salman 🇰🇪/i)).toBeInTheDocument();
   });
 
   it('switches navigation tabs seamlessly', () => {
     render(<App />);
     
+    // Switch to Dengar Lawan & Tangkis
+    const listenerTab = screen.getByRole('button', { name: /Dengar Lawan & Tangkis/i });
+    fireEvent.click(listenerTab);
+    expect(screen.getByText(/Dengar Lawan & Buat Sanggahan Kilat/i)).toBeInTheDocument();
+
     // Switch to Pidato Saya (Teleprompter)
     const teleprompterTab = screen.getByRole('button', { name: /Pidato Saya/i });
     fireEvent.click(teleprompterTab);
@@ -43,5 +49,10 @@ describe('App Integration Test', () => {
     const resTab = screen.getByRole('button', { name: /Resolution Crafter/i });
     fireEvent.click(resTab);
     expect(screen.getByText(/Draft Resolution & Working Paper Crafter/i)).toBeInTheDocument();
+
+    // Switch back to Tanya Nata (Chat AI)
+    const chatTab = screen.getByRole('button', { name: /Tanya Nata \(Chat AI\)/i });
+    fireEvent.click(chatTab);
+    expect(screen.getByText(/Nata \(Virtual Co-Delegate\)/i)).toBeInTheDocument();
   });
 });
