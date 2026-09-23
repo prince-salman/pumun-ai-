@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
-import { X, Key, Globe, Cpu, Volume2, RotateCcw, Check, ShieldAlert } from 'lucide-react';
+import { X, Key, Globe, Cpu, Volume2, RotateCcw } from 'lucide-react';
 import { AVAILABLE_MODELS } from '../services/aiService';
 import { speechService } from '../services/speechSynthesis';
+import { SettingsState } from '../types';
 
-export default function SettingsModal({ settings, updateSetting, resetSettings, onClose }) {
-  const [testSuccess, setTestSuccess] = useState(false);
+interface SettingsModalProps {
+  settings: SettingsState;
+  updateSetting: <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => void;
+  resetSettings: () => void;
+  onClose: () => void;
+}
+
+export default function SettingsModal({ settings, updateSetting, resetSettings, onClose }: SettingsModalProps) {
+  const [testSuccess, setTestSuccess] = useState<boolean>(false);
 
   const handleTestVoice = () => {
     speechService.speak("Republic of Kenya, present and voting. Ready to deliver the opening statement.", {

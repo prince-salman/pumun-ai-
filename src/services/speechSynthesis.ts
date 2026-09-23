@@ -1,11 +1,21 @@
+interface SpeakOptions {
+  rate?: number;
+  pitch?: number;
+  onStart?: () => void;
+  onEnd?: () => void;
+  onError?: (err: unknown) => void;
+}
+
 class SpeechSynthesisService {
+  private synth: SpeechSynthesis | null = null;
+  private voices: SpeechSynthesisVoice[] = [];
+  private selectedVoice: SpeechSynthesisVoice | null = null;
+  public isSupported: boolean = false;
+
   constructor() {
-    this.synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
-    this.voices = [];
-    this.selectedVoice = null;
     this.isSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
-    
     if (this.isSupported) {
+      this.synth = window.speechSynthesis;
       this.loadVoices();
       if (this.synth.onvoiceschanged !== undefined) {
         this.synth.onvoiceschanged = () => this.loadVoices();
@@ -23,7 +33,7 @@ class SpeechSynthesisService {
       this.voices[0] || null;
   }
 
-  speak(text, { rate = 0.95, pitch = 1.0, onStart, onEnd, onError } = {}) {
+  speak(text: string, { rate = 0.95, pitch = 1.0, onStart, onEnd, onError }: SpeakOptions = {}) {
     if (!this.isSupported || !this.synth) {
       if (onError) onError(new Error('Speech synthesis not supported in this browser.'));
       return;
@@ -71,7 +81,7 @@ class SpeechSynthesisService {
     }
   }
 
-  isSpeaking() {
+  isSpeaking(): boolean {
     return this.synth ? this.synth.speaking : false;
   }
 }

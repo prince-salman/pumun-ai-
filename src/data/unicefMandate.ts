@@ -1,4 +1,6 @@
-export const unicefMandate = {
+import { UnicefMandate } from '../types';
+
+export const unicefMandate: UnicefMandate = {
   committeeName: 'United Nations Children\'s Fund (UNICEF)',
   description: 'Badan PBB yang didedikasikan untuk melindungi hak dan kesejahteraan anak di seluruh dunia. Bekerja berdasarkan mandat kerjasama dan bantuan kemanusiaan/pembangunan, bukan penegakan hukum pidana.',
   
@@ -40,9 +42,9 @@ export const unicefMandate = {
     }
   ],
 
-  validateClause: (clauseText) => {
+  validateClause: (clauseText: string) => {
     const text = clauseText.toLowerCase();
-    const violations = [];
+    const violations: string[] = [];
 
     if (text.includes('arrest') || text.includes('penjara') || text.includes('tangkap') || text.includes('menangkap') || text.includes('prosecute') || text.includes('penuntutan')) {
       violations.push('Klausa mengandung unsur penegakan hukum pidana/penangkapan yang dilarang dalam mandat UNICEF.');

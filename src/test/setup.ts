@@ -1,7 +1,9 @@
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 // Mock Web Speech API
-global.speechSynthesis = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as any).speechSynthesis = {
   speak: vi.fn(),
   cancel: vi.fn(),
   pause: vi.fn(),
@@ -13,7 +15,8 @@ global.speechSynthesis = {
   onvoiceschanged: null,
 };
 
-global.SpeechSynthesisUtterance = vi.fn().mockImplementation((text) => ({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as any).SpeechSynthesisUtterance = vi.fn().mockImplementation((text: string) => ({
   text,
   lang: 'en-US',
   rate: 1,
@@ -24,13 +27,13 @@ global.SpeechSynthesisUtterance = vi.fn().mockImplementation((text) => ({
 
 // Mock localStorage
 const localStorageMock = (function () {
-  let store = {};
+  let store: Record<string, string> = {};
   return {
-    getItem: (key) => store[key] || null,
-    setItem: (key, value) => {
-      store[key] = value.toString();
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: unknown) => {
+      store[key] = (value as string).toString();
     },
-    removeItem: (key) => {
+    removeItem: (key: string) => {
       delete store[key];
     },
     clear: () => {

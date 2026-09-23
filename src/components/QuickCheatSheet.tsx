@@ -7,24 +7,25 @@ import {
   Copy, 
   Check, 
   Mic, 
-  ShieldAlert, 
-  HelpCircle, 
-  CheckCircle2, 
-  Flame,
-  Award
+  Award 
 } from 'lucide-react';
-import { quickPhrases, ropRules } from '../data/ropRules';
+import { quickPhrases } from '../data/ropRules';
 import { speechService } from '../services/speechSynthesis';
+import { SettingsState, QuickPhrase } from '../types';
 
-const CATEGORIES = ['Semua', 'Roll Call', 'Motions', 'Points', 'Yielding', 'Diplomatic Phrases'];
+interface QuickCheatSheetProps {
+  settings?: SettingsState;
+}
 
-export default function QuickCheatSheet({ settings }) {
-  const [selectedCategory, setSelectedCategory] = useState('Semua');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [playingId, setPlayingId] = useState(null);
-  const [copiedId, setCopiedId] = useState(null);
+const CATEGORIES = ['Semua', 'Roll Call', 'Motions', 'Points', 'Yielding', 'Diplomatic Phrases'] as const;
 
-  const filteredPhrases = quickPhrases.filter((phrase) => {
+export default function QuickCheatSheet({ settings }: QuickCheatSheetProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const filteredPhrases = quickPhrases.filter((phrase: QuickPhrase) => {
     const matchesCat = selectedCategory === 'Semua' || phrase.category === selectedCategory;
     const q = searchQuery.toLowerCase();
     const matchesSearch = 
@@ -36,7 +37,7 @@ export default function QuickCheatSheet({ settings }) {
     return matchesCat && matchesSearch;
   });
 
-  const handlePlayAudio = (phrase) => {
+  const handlePlayAudio = (phrase: QuickPhrase) => {
     if (playingId === phrase.id) {
       speechService.stop();
       setPlayingId(null);
@@ -50,7 +51,7 @@ export default function QuickCheatSheet({ settings }) {
     }
   };
 
-  const handleCopy = (phrase) => {
+  const handleCopy = (phrase: QuickPhrase) => {
     navigator.clipboard.writeText(phrase.english);
     setCopiedId(phrase.id);
     setTimeout(() => setCopiedId(null), 1800);

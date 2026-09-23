@@ -1,6 +1,6 @@
-import { kenyaProfile } from '../data/kenyaProfile';
+import { ModelOption, SpeechData } from '../types';
 
-export const AVAILABLE_MODELS = [
+export const AVAILABLE_MODELS: ModelOption[] = [
   { id: 'nemotron-3-ultra', name: 'Nemotron 3 Ultra (Sangat Cerdas & Rapi - Rekomendasi)', speed: 'Normal', intelligence: 'Tertinggi' },
   { id: 'nemotron-3.5-lightning', name: 'Nemotron 3.5 Lightning (Deep Reasoning)', speed: 'Cukup', intelligence: 'Tinggi' },
   { id: 'nemotron-3-super', name: 'Nemotron 3 Super', speed: 'Cepat', intelligence: 'Tinggi' },
@@ -10,7 +10,7 @@ export const AVAILABLE_MODELS = [
   { id: 'ling-3.0-flash-fin', name: 'Ling 3.0 Flash Fin', speed: 'Cepat', intelligence: 'Baik' },
 ];
 
-export function parseTriLayerResponse(rawText) {
+export function parseTriLayerResponse(rawText: string): SpeechData {
   let english = '';
   let caraBaca = '';
   let indoMeaning = '';
@@ -58,7 +58,7 @@ export function parseTriLayerResponse(rawText) {
   };
 }
 
-export function getOfflineFallbackSpeech({ mode = 'GSL', durationSeconds = 90, subtopic = 'General' }) {
+export function getOfflineFallbackSpeech({ mode = 'GSL', durationSeconds = 90, subtopic = 'General' }: { mode?: string; durationSeconds?: number; subtopic?: string } = {}): SpeechData {
   if (mode === 'POI' || durationSeconds <= 30) {
     return {
       english: "Honorable Chair, the Delegation of Kenya wishes to clarify that our national framework under the Children Act 2022 prioritizes unconditional school re-enrollment for child survivors. We ask the distinguished delegate: how does your proposal address cross-border victims who lack legal documentation? Kenya yields its time.",
@@ -100,7 +100,15 @@ export async function generateDiplomaticSpeech({
   model = 'nemotron-3-ultra',
   apiKey = 'sk-guts-83d0dcdcfcf1dc76ae8aaf946815626cbf04ebd3',
   baseUrl = 'https://api.gutsai.id/v1'
-}) {
+}: {
+  indonesianIdea: string;
+  mode?: string;
+  durationSeconds?: number;
+  subtopic?: string;
+  model?: string;
+  apiKey?: string;
+  baseUrl?: string;
+}): Promise<SpeechData> {
   const targetWordCount = Math.round((durationSeconds / 60) * 125);
 
   const systemPrompt = `You are the Virtual Co-Delegate and Speechwriter for the Republic of Kenya at PUMUN Regeneration 2026 (UNICEF Committee).

@@ -1,11 +1,19 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import React from 'react';
-import CountryIntelligence from './CountryIntelligence.jsx';
+import CountryIntelligence from './CountryIntelligence';
+import { SettingsState } from '../types';
 
 describe('CountryIntelligence Component', () => {
-  const mockSettings = {
-    selectedModel: 'nemotron-3-ultra'
+  const mockSettings: SettingsState = {
+    apiKey: 'test-key',
+    baseUrl: 'https://api.gutsai.id/v1',
+    selectedModel: 'nemotron-3-ultra',
+    speechRate: 0.95,
+    delegateName: 'Muhamad Salman',
+    partnerName: 'Nata (Berhalangan)',
+    isSolo: true,
+    theme: 'dark',
   };
 
   it('renders all 22 countries with flags and bloc information', () => {

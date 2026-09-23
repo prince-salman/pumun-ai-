@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { kenyaProfile } from './kenyaProfile.js';
-import { countriesDossier } from './countriesDossier.js';
-import { ropRules, quickPhrases } from './ropRules.js';
-import { unicefMandate } from './unicefMandate.js';
+import { kenyaProfile } from './kenyaProfile';
+import { countriesDossier } from './countriesDossier';
+import { ropRules, quickPhrases } from './ropRules';
+import { unicefMandate } from './unicefMandate';
 
-describe('Knowledge Base Integrity', () => {
+describe('Knowledge Base Integrity (TypeScript)', () => {
   it('loads Kenya profile with key laws and core pillars', () => {
     expect(kenyaProfile.countryName).toBe('Republic of Kenya');
     expect(kenyaProfile.laws).toContainEqual(
@@ -14,7 +14,6 @@ describe('Knowledge Base Integrity', () => {
   });
 
   it('maps all 22 other delegations with stances and blocs', () => {
-    // 23 total in PUMUN minus Kenya = 22 countries
     expect(countriesDossier.length).toBe(22);
     const countryNames = countriesDossier.map(c => c.name);
     expect(countryNames).toContain('United States of America');
@@ -28,7 +27,7 @@ describe('Knowledge Base Integrity', () => {
     expect(quickPhrases.length).toBeGreaterThan(0);
     const rollCall = quickPhrases.find(p => p.id === 'roll-call');
     expect(rollCall).toBeDefined();
-    expect(rollCall.caraBaca).toBeDefined();
+    expect(rollCall?.caraBaca).toBeDefined();
   });
 
   it('defines UNICEF mandate boundaries', () => {

@@ -1,16 +1,27 @@
 import React, { useState } from 'react';
-import { X, Send, Copy, Check, Sparkles, MessageSquare, Volume2, RotateCw } from 'lucide-react';
+import { X, Copy, Check, Sparkles, MessageSquare, Volume2, RotateCw } from 'lucide-react';
 import { speechService } from '../services/speechSynthesis';
+import { CountryDossier, SettingsState } from '../types';
 
-export default function NotePasserModal({ targetCountry, onClose, settings }) {
-  const [noteGoal, setNoteGoal] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedNote, setGeneratedNote] = useState({
+interface NotePasserModalProps {
+  targetCountry: CountryDossier;
+  onClose: () => void;
+  settings: SettingsState;
+}
+
+export default function NotePasserModal({ targetCountry, onClose, settings }: NotePasserModalProps) {
+  const [noteGoal, setNoteGoal] = useState<string>('');
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [generatedNote, setGeneratedNote] = useState<{
+    english: string;
+    caraBaca: string;
+    indoMeaning: string;
+  }>({
     english: `To the Esteemed Delegation of ${targetCountry.name},\n\nThe Delegation of Kenya presents its compliments. Recognizing our shared commitment to rehabilitating child survivors, Kenya warmly invites your distinguished delegation to co-sponsor our Working Paper focusing on barrier-free school re-enrollment and regional support. Could we discuss this during the upcoming unmoderated caucus?\n\nWarm regards,\nDelegation of Kenya`,
     caraBaca: `Tu di Estimd Deleigesyen of ${targetCountry.name},\n\nDi Deleigesyen of Kenya prezents its kompliments. Rekognaising aur syerd komitmen tu rihabiliteiting caild servaivors, Kenya wormli invaits yor distingsy-d deleigesyen tu ko-sponsor aur Werking Peiper fokasing on beriyer-fri skul ri-enrolment end rijyonal saport. Kud wi diskas dis dyuring di apgaming anmodereited kokus?\n\nWorm rigards,\nDeleigesyen of Kenya`,
     indoMeaning: `Kepada Delegasi Terhormat ${targetCountry.name},\n\nDelegasi Kenya menyampaikan salam hormat. Menyadari komitmen bersama kita dalam merehabilitasi anak-anak korban, Kenya dengan hangat mengundang delegasi Anda untuk menjadi co-sponsor Working Paper kami yang berfokus pada pendaftaran kembali sekolah tanpa hambatan dan dukungan regional. Bisakah kita mendiskusikan hal ini pada kaukus bebas berikutnya?\n\nSalam hangat,\nDelegasi Kenya`
   });
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<boolean>(false);
 
   const handleGenerate = async () => {
     if (!noteGoal.trim()) return;

@@ -1,4 +1,6 @@
-export const kenyaProfile = {
+import { KenyaProfile } from '../types';
+
+export const kenyaProfile: KenyaProfile = {
   countryName: 'Republic of Kenya',
   officialName: 'Republic of Kenya',
   capital: 'Nairobi',

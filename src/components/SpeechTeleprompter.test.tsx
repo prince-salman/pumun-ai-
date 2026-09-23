@@ -1,19 +1,24 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import React from 'react';
-import SpeechTeleprompter from './SpeechTeleprompter.jsx';
+import SpeechTeleprompter from './SpeechTeleprompter';
+import { SettingsState } from '../types';
 
-describe('SpeechTeleprompter Component', () => {
-  const mockSettings = {
+describe('SpeechTeleprompter Component (TypeScript)', () => {
+  const mockSettings: SettingsState = {
     apiKey: 'sk-test',
     baseUrl: 'https://api.gutsai.id/v1',
     selectedModel: 'nemotron-3-ultra',
-    speechRate: 0.95
+    speechRate: 0.95,
+    delegateName: 'Muhamad Salman',
+    partnerName: 'Nata',
+    isSolo: true,
+    theme: 'dark'
   };
 
   it('renders input controls and speech modes', () => {
     render(<SpeechTeleprompter settings={mockSettings} />);
-    expect(screen.getByPlaceholderText(/Tulis ide, poin, atau pesan Anda dalam Bahasa Indonesia/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Tulis atau klik 'Bicara via Mic'/i)).toBeInTheDocument();
     expect(screen.getByText(/General Speakers List \(90s\)/i)).toBeInTheDocument();
     expect(screen.getByText(/Moderated Caucus \(60s\)/i)).toBeInTheDocument();
     expect(screen.getByText(/Point of Information \(30s\)/i)).toBeInTheDocument();
@@ -23,7 +28,7 @@ describe('SpeechTeleprompter Component', () => {
     render(<SpeechTeleprompter settings={mockSettings} />);
     const topicButton = screen.getByText(/Pendaftaran Sekolah Tanpa Akta/i);
     fireEvent.click(topicButton);
-    const textarea = screen.getByPlaceholderText(/Tulis ide, poin, atau pesan Anda dalam Bahasa Indonesia/i);
+    const textarea = screen.getByPlaceholderText(/Tulis atau klik 'Bicara via Mic'/i) as HTMLTextAreaElement;
     expect(textarea.value).toContain('akta lahir');
   });
 

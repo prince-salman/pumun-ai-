@@ -1,4 +1,6 @@
-export const countriesDossier = [
+import { CountryDossier } from '../types';
+
+export const countriesDossier: CountryDossier[] = [
   {
     id: 'canada',
     name: 'Canada',

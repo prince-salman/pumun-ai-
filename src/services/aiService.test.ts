@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { parseTriLayerResponse, generateDiplomaticSpeech } from './aiService.js';
+import { describe, it, expect, vi } from 'vitest';
+import { parseTriLayerResponse, generateDiplomaticSpeech } from './aiService';
 
-describe('aiService parser and generator', () => {
+describe('aiService parser and generator (TypeScript)', () => {
   const sampleRawResponse = `
 ### 1. English Speech (Official Diplomatic Text)
 Honorable Chair, distinguished delegates,

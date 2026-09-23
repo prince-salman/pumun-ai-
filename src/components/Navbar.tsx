@@ -7,14 +7,22 @@ import {
   FileCode, 
   Settings, 
   Cpu, 
-  Volume2,
-  CheckCircle2,
+  Volume2, 
   UserCheck
 } from 'lucide-react';
 import { AVAILABLE_MODELS } from '../services/aiService';
 import { speechService } from '../services/speechSynthesis';
+import { SettingsState } from '../types';
 
-export default function Navbar({ activeTab, setActiveTab, settings, updateSetting, onOpenSettings }) {
+interface NavbarProps {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  settings: SettingsState;
+  updateSetting: <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => void;
+  onOpenSettings: () => void;
+}
+
+export default function Navbar({ activeTab, setActiveTab, settings, updateSetting, onOpenSettings }: NavbarProps) {
   const handleTestAudio = () => {
     speechService.speak('Honorable Chair, the Delegation of Kenya is present and voting.', {
       rate: settings.speechRate || 0.95

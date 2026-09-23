@@ -6,14 +6,27 @@ import {
   Copy, 
   Check, 
   AlertTriangle, 
-  ShieldCheck, 
-  Sparkles, 
-  RotateCw,
-  BookOpen,
-  Volume2
+  Sparkles 
 } from 'lucide-react';
 import { unicefMandate } from '../data/unicefMandate';
-import { speechService } from '../services/speechSynthesis';
+import { SettingsState } from '../types';
+
+interface ResolutionCrafterProps {
+  settings?: SettingsState;
+}
+
+interface PreambClause {
+  id: string;
+  starter: string;
+  text: string;
+}
+
+interface OperativeClause {
+  id: string;
+  starter: string;
+  title?: string;
+  text: string;
+}
 
 const PREAMB_STARTERS = [
   'Affirming',
@@ -39,7 +52,7 @@ const OPERATIVE_STARTERS = [
   'Urges'
 ];
 
-const DEFAULT_PREAMBS = [
+const DEFAULT_PREAMBS: PreambClause[] = [
   {
     id: 'p1',
     starter: 'Guided by',
@@ -57,7 +70,7 @@ const DEFAULT_PREAMBS = [
   }
 ];
 
-const DEFAULT_OPERATIVES = [
+const DEFAULT_OPERATIVES: OperativeClause[] = [
   {
     id: 'o1',
     starter: 'Calls upon',
@@ -84,27 +97,26 @@ const DEFAULT_OPERATIVES = [
   }
 ];
 
-export default function ResolutionCrafter({ settings }) {
-  const [sponsors, setSponsors] = useState('Republic of Kenya, Democratic republic of the Congo');
-  const [signatories, setSignatories] = useState('Republic of Indonesia, Republic of the Philippines, Kingdom of Sweden, Canada');
-  const [preambs, setPreambs] = useState(DEFAULT_PREAMBS);
-  const [operatives, setOperatives] = useState(DEFAULT_OPERATIVES);
+export default function ResolutionCrafter({ settings }: ResolutionCrafterProps) {
+  const [sponsors, setSponsors] = useState<string>('Republic of Kenya, Democratic republic of the Congo');
+  const [signatories, setSignatories] = useState<string>('Republic of Indonesia, Republic of the Philippines, Kingdom of Sweden, Canada');
+  const [preambs, setPreambs] = useState<PreambClause[]>(DEFAULT_PREAMBS);
+  const [operatives, setOperatives] = useState<OperativeClause[]>(DEFAULT_OPERATIVES);
   
   // Custom generator state
-  const [customIdea, setCustomIdea] = useState('');
-  const [customType, setCustomType] = useState('operative'); // 'preamb' | 'operative'
-  const [selectedStarter, setSelectedStarter] = useState('Calls upon');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [customIdea, setCustomIdea] = useState<string>('');
+  const [customType, setCustomType] = useState<'operative' | 'preamb'>('operative');
+  const [selectedStarter, setSelectedStarter] = useState<string>('Calls upon');
+  const [copied, setCopied] = useState<boolean>(false);
 
   // Mandate validation check for user's custom input
   const validation = unicefMandate.validateClause(customIdea);
 
-  const handleAddCustomClause = async () => {
+  const handleAddCustomClause = () => {
     if (!customIdea.trim()) return;
 
     if (customType === 'operative') {
-      const newOp = {
+      const newOp: OperativeClause = {
         id: 'o_' + Date.now(),
         starter: selectedStarter,
         title: customIdea.slice(0, 35) + '...',
@@ -113,7 +125,7 @@ export default function ResolutionCrafter({ settings }) {
       setOperatives([...operatives, newOp]);
       setCustomIdea('');
     } else {
-      const newPre = {
+      const newPre: PreambClause = {
         id: 'p_' + Date.now(),
         starter: selectedStarter,
         text: `${customIdea.replace(/,$/, '')},`
@@ -123,11 +135,11 @@ export default function ResolutionCrafter({ settings }) {
     }
   };
 
-  const handleRemovePreamb = (id) => {
+  const handleRemovePreamb = (id: string) => {
     setPreambs(preambs.filter(p => p.id !== id));
   };
 
-  const handleRemoveOperative = (id) => {
+  const handleRemoveOperative = (id: string) => {
     setOperatives(operatives.filter(o => o.id !== id));
   };
 
@@ -220,7 +232,7 @@ export default function ResolutionCrafter({ settings }) {
             <select
               value={customType}
               onChange={(e) => {
-                const t = e.target.value;
+                const t = e.target.value as 'operative' | 'preamb';
                 setCustomType(t);
                 setSelectedStarter(t === 'operative' ? OPERATIVE_STARTERS[0] : PREAMB_STARTERS[0]);
               }}

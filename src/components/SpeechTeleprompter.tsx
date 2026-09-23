@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Sparkles, 
   Volume2, 
@@ -7,6 +7,7 @@ import {
   Check, 
   BookOpen, 
   Mic, 
+  MicOff,
   Clock, 
   Layers, 
   AlertCircle,
@@ -16,8 +17,13 @@ import {
 import { generateDiplomaticSpeech, getOfflineFallbackSpeech } from '../services/aiService';
 import { speechService } from '../services/speechSynthesis';
 import CountdownTimer from './CountdownTimer';
+import { SettingsState, SpeechMode, SpeechData } from '../types';
 
-const SPEECH_MODES = [
+interface SpeechTeleprompterProps {
+  settings: SettingsState;
+}
+
+const SPEECH_MODES: SpeechMode[] = [
   { id: 'GSL', label: 'General Speakers List (90s)', duration: 90, desc: 'Pidato pembuka / umum posisi Kenya' },
   { id: 'MOD', label: 'Moderated Caucus (60s)', duration: 60, desc: 'Debat terfokus pada sub-isu spesifik' },
   { id: 'MOD45', label: 'Moderated Caucus (45s)', duration: 45, desc: 'Debat kilat waktu padat' },
@@ -43,17 +49,67 @@ const QUICK_TOPICS = [
   }
 ];
 
-export default function SpeechTeleprompter({ settings }) {
-  const [selectedMode, setSelectedMode] = useState(SPEECH_MODES[0]);
-  const [indonesianIdea, setIndonesianIdea] = useState('');
-  const [subtopic, setSubtopic] = useState('Pendidikan & Reintegrasi Korban');
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('english'); // 'english' | 'caraBaca' | 'indoMeaning' | 'all'
-  const [speechData, setSpeechData] = useState(() => getOfflineFallbackSpeech({ mode: 'GSL', durationSeconds: 90 }));
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [copied, setCopied] = useState(false);
+export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps) {
+  const [selectedMode, setSelectedMode] = useState<SpeechMode>(SPEECH_MODES[0]);
+  const [indonesianIdea, setIndonesianIdea] = useState<string>('');
+  const [subtopic, setSubtopic] = useState<string>('Pendidikan & Reintegrasi Korban');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'english' | 'caraBaca' | 'indoMeaning' | 'all'>('english');
+  const [speechData, setSpeechData] = useState<SpeechData>(() => getOfflineFallbackSpeech({ mode: 'GSL', durationSeconds: 90 }));
+  const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
+  const [copied, setCopied] = useState<boolean>(false);
+  const [isListening, setIsListening] = useState<boolean>(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recognitionRef = useRef<any>(null);
+
+  // Speech-to-Text (Voice input in Indonesian)
+  const toggleListening = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Browser Anda belum mendukung input suara langsung. Disarankan menggunakan Google Chrome atau Microsoft Edge.");
+      return;
+    }
+
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+    } else {
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'id-ID'; // Indonesian voice recognition
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript;
+          setIndonesianIdea((prev) => (prev ? `${prev} ${transcript}` : transcript));
+          setIsListening(false);
+        };
+
+        recognition.onerror = () => {
+          setIsListening(false);
+        };
+
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+
+        recognitionRef.current = recognition;
+        recognition.start();
+        setIsListening(true);
+      } catch (err) {
+        console.error("Speech recognition error:", err);
+        setIsListening(false);
+      }
+    }
+  };
 
   const handleGenerate = async () => {
+    const ideaToUse = indonesianIdea.trim() || QUICK_TOPICS[0].prompt;
     if (!indonesianIdea.trim()) {
       setIndonesianIdea(QUICK_TOPICS[0].prompt);
     }
@@ -64,7 +120,7 @@ export default function SpeechTeleprompter({ settings }) {
 
     try {
       const result = await generateDiplomaticSpeech({
-        indonesianIdea: indonesianIdea || QUICK_TOPICS[0].prompt,
+        indonesianIdea: ideaToUse,
         mode: selectedMode.id,
         durationSeconds: selectedMode.duration,
         subtopic,
@@ -96,7 +152,7 @@ export default function SpeechTeleprompter({ settings }) {
     }
   };
 
-  const handleCopy = (text) => {
+  const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -113,11 +169,11 @@ export default function SpeechTeleprompter({ settings }) {
               Live Speech Teleprompter (Virtual Co-Delegate)
             </h2>
             <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              3-Lapis Fonetik
+              TypeScript • 3-Lapis Fonetik
             </span>
           </div>
           <p className="text-sm text-slate-300 mt-1">
-            Ketik ide Anda dalam Bahasa Indonesia sehari-hari. Asisten mengubahnya menjadi naskah diplomasi PBB resmi lengkap dengan <strong>panduan cara baca (ejaan fonetik)</strong> dan audio.
+            Ketik atau <strong>bicara lewat mic dalam Bahasa Indonesia</strong>. Asisten mengubahnya menjadi naskah diplomasi PBB resmi lengkap dengan <strong>panduan cara baca fonetik</strong> dan audio.
           </p>
         </div>
 
@@ -188,17 +244,40 @@ export default function SpeechTeleprompter({ settings }) {
               </div>
             </div>
 
-            {/* Indonesian input textarea */}
+            {/* Indonesian input textarea with Voice Recognition Mic */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
-                <span>3. Ide / Pesan Anda (Bahasa Indonesia)</span>
-                <span className="text-[11px] text-emerald-400">Bebas ketik apa saja</span>
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  3. Ide / Pesan Anda (Bahasa Indonesia)
+                </label>
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                    isListening
+                      ? 'bg-red-500/20 text-red-300 border border-red-500/40 animate-pulse'
+                      : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20'
+                  }`}
+                  title={isListening ? "Sedang merekam suara... Klik untuk berhenti" : "Klik untuk bicara lewat mic"}
+                >
+                  {isListening ? (
+                    <>
+                      <MicOff className="w-3.5 h-3.5 text-red-400" />
+                      <span>Mendengarkan...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Bicara via Mic 🎙️</span>
+                    </>
+                  )}
+                </button>
+              </div>
               <textarea
                 rows={4}
                 value={indonesianIdea}
                 onChange={(e) => setIndonesianIdea(e.target.value)}
-                placeholder="Tulis ide, poin, atau pesan Anda dalam Bahasa Indonesia di sini... (Contoh: Saya mau usul bantuan dana negara maju untuk bangun shelter di perbatasan)"
+                placeholder="Tulis atau klik 'Bicara via Mic' untuk ngomong langsung dalam Bahasa Indonesia... (Contoh: Saya mau usul bantuan dana negara maju untuk bangun shelter di perbatasan)"
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition resize-none"
               />
             </div>

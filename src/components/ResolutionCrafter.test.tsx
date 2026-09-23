@@ -1,11 +1,19 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import React from 'react';
-import ResolutionCrafter from './ResolutionCrafter.jsx';
+import ResolutionCrafter from './ResolutionCrafter';
+import { SettingsState } from '../types';
 
 describe('ResolutionCrafter Component', () => {
-  const mockSettings = {
-    selectedModel: 'nemotron-3-ultra'
+  const mockSettings: SettingsState = {
+    apiKey: 'test-key',
+    baseUrl: 'https://api.gutsai.id/v1',
+    selectedModel: 'nemotron-3-ultra',
+    speechRate: 0.95,
+    delegateName: 'Muhamad Salman',
+    partnerName: 'Nata (Berhalangan)',
+    isSolo: true,
+    theme: 'dark',
   };
 
   it('renders resolution builder interface and default clauses', () => {

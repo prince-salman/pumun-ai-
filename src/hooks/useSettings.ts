@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
+import { SettingsState } from '../types';
 
 const STORAGE_KEY = 'kenya_pumun_settings_v1';
 
-const DEFAULT_SETTINGS = {
+const DEFAULT_SETTINGS: SettingsState = {
   apiKey: 'sk-guts-83d0dcdcfcf1dc76ae8aaf946815626cbf04ebd3',
   baseUrl: 'https://api.gutsai.id/v1',
   selectedModel: 'nemotron-3-ultra',
@@ -14,7 +15,7 @@ const DEFAULT_SETTINGS = {
 };
 
 export function useSettings() {
-  const [settings, setSettings] = useState(() => {
+  const [settings, setSettings] = useState<SettingsState>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -34,8 +35,8 @@ export function useSettings() {
     }
   }, [settings]);
 
-  const updateSetting = (key, value) => {
-    setSettings(prev => ({
+  const updateSetting = <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => {
+    setSettings((prev) => ({
       ...prev,
       [key]: value
     }));

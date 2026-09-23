@@ -7,11 +7,11 @@ import CountryIntelligence from './components/CountryIntelligence';
 import ResolutionCrafter from './components/ResolutionCrafter';
 import SettingsModal from './components/SettingsModal';
 import { useSettings } from './hooks/useSettings';
-import { ShieldCheck, Heart, ExternalLink, Sparkles } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('teleprompter');
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>('teleprompter');
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const { settings, updateSetting, resetSettings } = useSettings();
 
   return (
@@ -46,7 +46,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1 text-slate-400">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Offline Ready Knowledge Base</span>
+              <span>TypeScript Ready • Offline Knowledge Base</span>
             </span>
             <span className="text-slate-700">•</span>
             <span className="text-slate-400 font-mono text-[11px]">

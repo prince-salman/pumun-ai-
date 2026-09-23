@@ -1,4 +1,10 @@
-export const ropRules = {
+import { RopRule, RopPoint, RopMotion, QuickPhrase } from '../types';
+
+export const ropRules: {
+  generalRules: RopRule[];
+  points: RopPoint[];
+  motions: RopMotion[];
+} = {
   generalRules: [
     {
       title: 'Roll Call (Presensi Sidang)',
@@ -85,7 +91,7 @@ export const ropRules = {
   ]
 };
 
-export const quickPhrases = [
+export const quickPhrases: QuickPhrase[] = [
   {
     id: 'roll-call',
     category: 'Roll Call',

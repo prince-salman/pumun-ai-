@@ -3,25 +3,24 @@ import {
   Globe, 
   Search, 
   Send, 
-  Users, 
-  ShieldCheck, 
-  Compass, 
-  ExternalLink, 
-  Sparkles,
-  HelpCircle,
-  Flag
+  Users 
 } from 'lucide-react';
 import { countriesDossier } from '../data/countriesDossier';
 import NotePasserModal from './NotePasserModal';
+import { CountryDossier, SettingsState } from '../types';
 
-const BLOCS = ['Semua Blok', 'Western Donors', 'African Union', 'ASEAN & Asia', 'P5 Powers', 'Intermediate Peers'];
+interface CountryIntelligenceProps {
+  settings: SettingsState;
+}
 
-export default function CountryIntelligence({ settings }) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedBloc, setSelectedBloc] = useState('Semua Blok');
-  const [activeModalCountry, setActiveModalCountry] = useState(null);
+const BLOCS = ['Semua Blok', 'Western Donors', 'African Union', 'ASEAN & Asia', 'P5 Powers', 'Intermediate Peers'] as const;
 
-  const filteredCountries = countriesDossier.filter((c) => {
+export default function CountryIntelligence({ settings }: CountryIntelligenceProps) {
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedBloc, setSelectedBloc] = useState<string>('Semua Blok');
+  const [activeModalCountry, setActiveModalCountry] = useState<CountryDossier | null>(null);
+
+  const filteredCountries = countriesDossier.filter((c: CountryDossier) => {
     const q = searchQuery.toLowerCase();
     const matchesSearch = 
       c.name.toLowerCase().includes(q) ||

@@ -1,11 +1,19 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import React from 'react';
-import QuickCheatSheet from './QuickCheatSheet.jsx';
+import QuickCheatSheet from './QuickCheatSheet';
+import { SettingsState } from '../types';
 
-describe('QuickCheatSheet Component', () => {
-  const mockSettings = {
-    speechRate: 0.95
+describe('QuickCheatSheet Component (TypeScript)', () => {
+  const mockSettings: SettingsState = {
+    apiKey: 'sk-test',
+    baseUrl: 'https://api.gutsai.id/v1',
+    selectedModel: 'nemotron-3-ultra',
+    speechRate: 0.95,
+    delegateName: 'Muhamad Salman',
+    partnerName: 'Nata',
+    isSolo: true,
+    theme: 'dark'
   };
 
   it('renders quick phrases categories and cards', () => {

@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, Bell } from 'lucide-react';
 
-export default function CountdownTimer({ initialSeconds = 90 }) {
-  const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
-  const [isRunning, setIsRunning] = useState(false);
-  const timerRef = useRef(null);
+interface CountdownTimerProps {
+  initialSeconds?: number;
+}
+
+export default function CountdownTimer({ initialSeconds = 90 }: CountdownTimerProps) {
+  const [secondsLeft, setSecondsLeft] = useState<number>(initialSeconds);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const timerRef = useRef<NodeJS.Timeout | number | null>(null);
 
   useEffect(() => {
     setSecondsLeft(initialSeconds);
@@ -16,7 +20,7 @@ export default function CountdownTimer({ initialSeconds = 90 }) {
       timerRef.current = setInterval(() => {
         setSecondsLeft((prev) => {
           if (prev <= 1) {
-            clearInterval(timerRef.current);
+            if (timerRef.current) clearInterval(timerRef.current as number);
             setIsRunning(false);
             playChime();
             return 0;
@@ -25,17 +29,19 @@ export default function CountdownTimer({ initialSeconds = 90 }) {
         });
       }, 1000);
     } else {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) clearInterval(timerRef.current as number);
     }
 
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) clearInterval(timerRef.current as number);
     };
   }, [isRunning]);
 
   const playChime = () => {
     try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const audioCtx = new AudioCtx();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = 'sine';

@@ -7,16 +7,17 @@ import {
   Download, 
   ShieldCheck, 
   Award, 
-  AlertCircle,
-  Sparkles,
-  ExternalLink,
   BookOpen
 } from 'lucide-react';
-import { kenyaProfile } from '../data/kenyaProfile';
+import { SettingsState } from '../types';
 
-export default function PositionPaperStudio({ settings }) {
-  const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState('paper'); // 'paper' | 'guide' | 'citations'
+interface PositionPaperStudioProps {
+  settings?: SettingsState;
+}
+
+export default function PositionPaperStudio({ settings }: PositionPaperStudioProps) {
+  const [copied, setCopied] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'paper' | 'guide'>('paper');
 
   const paperContent = {
     country: 'Republic of Kenya',
