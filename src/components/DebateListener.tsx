@@ -43,6 +43,7 @@ export default function DebateListener({ settings }: DebateListenerProps) {
   const [activeSpeechTab, setActiveSpeechTab] = useState<'caraBaca' | 'english' | 'makna'>('caraBaca');
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
+  const [lastAnalyzedTime, setLastAnalyzedTime] = useState<string | null>(null);
 
   // Voice recording state
   const [isListeningMic, setIsListeningMic] = useState<boolean>(false);
@@ -103,6 +104,7 @@ export default function DebateListener({ settings }: DebateListenerProps) {
       setAnalysisResult(getOfflineAnalysisFallback(selectedCountry, textToAnalyze));
     } finally {
       setIsLoading(false);
+      setLastAnalyzedTime(new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
     }
   };
 
@@ -257,6 +259,21 @@ export default function DebateListener({ settings }: DebateListenerProps) {
       {/* OUTPUT SECTION: 3 Crystal-Clear Cards */}
       {analysisResult && (
         <div className="space-y-4 animate-in fade-in duration-300">
+          {/* Status feedback bar */}
+          <div className="flex items-center justify-between text-xs px-4 py-2.5 rounded-xl border bg-emerald-50 text-emerald-900 border-emerald-200 shadow-sm">
+            <span className="font-bold flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-600" />
+              {analysisResult.counterSpeech.isFallback
+                ? 'Mode Siaga Otomatis (Respons Kilat)'
+                : `Analisis AI Live Berhasil (${settings.selectedModel})`}
+            </span>
+            {lastAnalyzedTime && (
+              <span className="text-[11px] font-mono text-emerald-700">
+                Pukul: {lastAnalyzedTime} WIB
+              </span>
+            )}
+          </div>
+
           {/* CARD 1: Inti Omongan Mereka */}
           <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm space-y-2">
             <div className="flex items-center justify-between">

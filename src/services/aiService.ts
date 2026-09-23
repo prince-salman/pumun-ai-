@@ -1,6 +1,18 @@
 import { ModelOption, SpeechData, SpeechAnalysisResult } from '../types';
 
 
+export function getEffectiveBaseUrl(baseUrl?: string): string {
+  const url = baseUrl || 'https://api.gutsai.id/v1';
+  // If running in browser and URL points to api.gutsai.id, use Vite proxy /api-guts to eliminate CORS blockage
+  if (typeof window !== 'undefined' && url.includes('api.gutsai.id')) {
+    const origin = (window.location && window.location.origin && window.location.origin !== 'null' && window.location.origin !== '')
+      ? window.location.origin
+      : 'http://localhost:5173';
+    return `${origin}/api-guts/v1`;
+  }
+  return url;
+}
+
 export const AVAILABLE_MODELS: ModelOption[] = [
   { id: 'nemotron-3-ultra', name: 'Nemotron 3 Ultra (Sangat Cerdas & Rapi - Rekomendasi)', speed: 'Normal', intelligence: 'Tertinggi' },
   { id: 'nemotron-3.5-lightning', name: 'Nemotron 3.5 Lightning (Deep Reasoning)', speed: 'Cukup', intelligence: 'Tinggi' },
@@ -149,7 +161,8 @@ Ide/Pesan saya dari Kenya (dalam Bahasa Indonesia):
 Tolong buatkan pidato diplomasi resmi untuk saya sekarang.`;
 
   try {
-    const response = await fetch(`${baseUrl}/chat/completions`, {
+    const targetUrl = getEffectiveBaseUrl(baseUrl);
+    const response = await fetch(`${targetUrl}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -258,24 +271,25 @@ export async function analyzeDelegateSpeech({
 }): Promise<SpeechAnalysisResult> {
   const systemPrompt = `You are the Chief Diplomatic Intelligence Advisor for the Republic of Kenya at PUMUN 2026 (UNICEF Committee).
 The delegate is Muhamad Salman, representing Kenya as a solo delegate.
-He does not speak English and needs to instantly understand what another delegate just said on the floor, and immediately have a counter-speech ready to speak at the podium.
+Salman CANNOT speak English. He needs an instant Indonesian summary of what was said, strategic advice for Kenya, and an immediate 30-40s counter-speech with Indonesian phonetic pronunciation!
 
-Analyze the given speech or debate points from ${countryName}:
-Output format in 4 strict sections with markdown headers:
+CRITICAL FORMATTING INSTRUCTIONS:
+You MUST provide your response strictly structured in these 5 sections with markdown headers:
+
 ### 1. Rangkuman Inti
-(1-2 clear, simple Indonesian sentences summarizing what this country actually said/proposed.)
+(1-2 kalimat Bahasa Indonesia yang jelas dan padat merangkum apa yang disampaikan atau diusulkan oleh negara ini.)
 
 ### 2. Sikap Kenya
-(Explain in 1-2 Indonesian sentences: Is this beneficial or threatening to Kenya? What should Salman do?)
+(1-2 kalimat: Apakah omongan mereka menguntungkan, netral, atau mengancam Kenya? Apa tindakan diplomasi nyata yang harus Salman lakukan?)
 
 ### 3. Sanggahan Pidato Inggris
-(A crisp, 30-45 second official parliamentary speech directly addressing them. Address Dais properly: "Honorable Chair...". Yield back at the end.)
+(Naskah pidato resmi bahasa Inggris 30-40 detik yang lugas. Wajib buka: "Honorable Chair..." dan tutup: "Kenya yields its time to the Dais.")
 
 ### 4. Cara Baca Sanggahan
-(Full Indonesian phonetic pronunciation in bold, simple syllables so Salman can read it immediately out loud!)
+(WAJIB tuliskan ejaan lafal fonetik suku kata Bahasa Indonesia santai untuk seluruh naskah Inggris di atas! JANGAN tulis bahasa Inggris lagi. Contoh: "O-nor-e-bel Cyeer, de de-le-ge-syon of Ken-ya nowts... Ken-ya yilds its taim tu de Dais.")
 
 ### 5. Makna Sanggahan
-(Simple Indonesian translation of the rebuttal.)`;
+(Terjemahan bahasa Indonesia lengkap dari pidato sanggahan tersebut.)`;
 
   const userMessage = `Negara yang sedang bicara: ${countryName}
 Apa yang mereka katakan / kata kunci yang terdengar:
@@ -284,7 +298,8 @@ Apa yang mereka katakan / kata kunci yang terdengar:
 Tolong rangkumkan intinya, beri tahu taktik untuk Kenya, dan buatkan pidato balasan/sanggahan 30 detik sekarang.`;
 
   try {
-    const response = await fetch(`${baseUrl}/chat/completions`, {
+    const targetUrl = getEffectiveBaseUrl(baseUrl);
+    const response = await fetch(`${targetUrl}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -311,20 +326,34 @@ Tolong rangkumkan intinya, beri tahu taktik untuk Kenya, dan buatkan pidato bala
       throw new Error('Empty response');
     }
 
-    const summaryMatch = rawContent.match(/###\s*1\.\s*Rangkuman[^\n]*\n([\s\S]*?)(?=###\s*2\.\s*Sikap|$)/i);
-    const strategyMatch = rawContent.match(/###\s*2\.\s*Sikap[^\n]*\n([\s\S]*?)(?=###\s*3\.\s*Sanggahan Pidato Inggris|$)/i);
-    const engMatch = rawContent.match(/###\s*3\.\s*Sanggahan Pidato Inggris[^\n]*\n([\s\S]*?)(?=###\s*4\.\s*Cara Baca|$)/i);
-    const caraMatch = rawContent.match(/###\s*4\.\s*Cara Baca[^\n]*\n([\s\S]*?)(?=###\s*5\.\s*Makna|$)/i);
-    const indoMatch = rawContent.match(/###\s*5\.\s*Makna[^\n]*\n([\s\S]*?)$/i);
+    const summaryMatch = rawContent.match(/(?:###|\*\*|#)?\s*1\.\s*Rangkuman[^\n]*\n([\s\S]*?)(?=(?:###|\*\*|#)?\s*2\.|$)/i);
+    const strategyMatch = rawContent.match(/(?:###|\*\*|#)?\s*2\.\s*Sikap[^\n]*\n([\s\S]*?)(?=(?:###|\*\*|#)?\s*3\.|$)/i);
+    const engMatch = rawContent.match(/(?:###|\*\*|#)?\s*3\.\s*(?:Sanggahan|Pidato|English)[^\n]*\n([\s\S]*?)(?=(?:###|\*\*|#)?\s*4\.|$)/i);
+    const caraMatch = rawContent.match(/(?:###|\*\*|#)?\s*4\.\s*Cara Baca[^\n]*\n([\s\S]*?)(?=(?:###|\*\*|#)?\s*5\.|$)/i);
+    const indoMatch = rawContent.match(/(?:###|\*\*|#)?\s*5\.\s*Makna[^\n]*\n([\s\S]*?)$/i);
 
     const summaryIndo = summaryMatch ? summaryMatch[1].trim() : `Delegasi ${countryName} menyampaikan poin terkait topik komite.`;
     const kenyaStrategy = strategyMatch ? strategyMatch[1].trim() : 'Tegaskan posisi Kenya dan usulkan kerja sama konstruktif.';
-    const english = engMatch ? engMatch[1].trim() : '';
-    const caraBaca = caraMatch ? caraMatch[1].trim() : '';
-    const indoMeaning = indoMatch ? indoMatch[1].trim() : '';
+    let english = engMatch ? engMatch[1].trim() : '';
+    let caraBaca = caraMatch ? caraMatch[1].trim() : '';
+    let indoMeaning = indoMatch ? indoMatch[1].trim() : '';
 
-    if (!english || !caraBaca) {
+    if (!english) {
+      // Fallback splitting if headings differed
+      const parts = rawContent.split(/###\s*\d+\.|\*\*\d+\.|\d+\.\s*(?:Rangkuman|Sikap|Sanggahan|Cara Baca|Makna)/i);
+      if (parts.length >= 4) {
+        english = parts[3].trim();
+        caraBaca = parts[4] ? parts[4].trim() : english;
+        indoMeaning = parts[5] ? parts[5].trim() : '';
+      }
+    }
+
+    if (!english) {
       return getOfflineAnalysisFallback(countryName, rawSpeechOrIdea);
+    }
+
+    if (!caraBaca) {
+      caraBaca = english;
     }
 
     const words = english.replace(/[#*_\-\n]/g, ' ').split(/\s+/).filter(Boolean);
@@ -333,9 +362,9 @@ Tolong rangkumkan intinya, beri tahu taktik untuk Kenya, dan buatkan pidato bala
 
     let kenyaImpact: 'Menguntungkan' | 'Netral' | 'Mengancam / Perlu Direspon' = 'Netral';
     const lowerStrategy = kenyaStrategy.toLowerCase();
-    if (lowerStrategy.includes('kawan') || lowerStrategy.includes('untung') || lowerStrategy.includes('sekutu') || lowerStrategy.includes('dukung')) {
+    if (lowerStrategy.includes('kawan') || lowerStrategy.includes('untung') || lowerStrategy.includes('sekutu') || lowerStrategy.includes('dukung') || lowerStrategy.includes('positif')) {
       kenyaImpact = 'Menguntungkan';
-    } else if (lowerStrategy.includes('ancam') || lowerStrategy.includes('lawan') || lowerStrategy.includes('tolak') || lowerStrategy.includes('bahaya') || lowerStrategy.includes('hati-hati')) {
+    } else if (lowerStrategy.includes('ancam') || lowerStrategy.includes('lawan') || lowerStrategy.includes('tolak') || lowerStrategy.includes('bahaya') || lowerStrategy.includes('hati-hati') || lowerStrategy.includes('waspada')) {
       kenyaImpact = 'Mengancam / Perlu Direspon';
     }
 
@@ -347,7 +376,7 @@ Tolong rangkumkan intinya, beri tahu taktik untuk Kenya, dan buatkan pidato bala
       counterSpeech: {
         english,
         caraBaca,
-        indoMeaning,
+        indoMeaning: indoMeaning || 'Terjemahan sanggahan untuk posisi Kenya.',
         wordCount,
         estimatedSeconds,
         isFallback: false
