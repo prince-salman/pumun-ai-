@@ -29,25 +29,19 @@ export default function PositionPaperStudio({ settings }: PositionPaperStudioPro
     delegate: `${settings?.delegateName || 'Muhamad Salman'} (Solo Delegate)`,
     
     section1Title: 'I. Background and National Context',
-    section1Text: `Child trafficking and commercial sexual exploitation represent profound violations of fundamental human dignity, disrupting the developmental trajectory and educational continuity of vulnerable minors across the globe. According to UNICEF, hundreds of millions of children experience violence and exploitation, with survivors enduring persistent trauma, acute poverty, and deep societal stigma long after their physical rescue.¹ In the Horn of Africa and East African Community (EAC), geopolitical instability, recurrent climatic shocks, and economic vulnerabilities exacerbate child susceptibility to illicit recruitment and transnational trafficking circuits. The Republic of Kenya recognizes that the end of captivity does not signify the completion of rehabilitation. For a child survivor, educational exclusion—often triggered by the loss or confiscation of civil birth documentation during trafficking—creates an acute barrier to societal reintegration, drastically amplifying the risk of re-exploitation. Consequently, restorative justice requires an institutional paradigm that guarantees safe, dignified, and sustained educational pathways.`,
+    section1Text: `Child trafficking and commercial sexual exploitation represent severe violations of fundamental human dignity that disrupt the developmental trajectory and educational continuity of vulnerable minors worldwide. According to UNICEF documentation, hundreds of millions of children endure violence and exploitation, with survivors facing persistent trauma, systemic poverty, and social marginalization long after their physical rescue. Within the Horn of Africa and the East African Community, geopolitical instability, recurrent climate-induced displacement, and economic hardship heighten the vulnerability of minors to cross-border trafficking networks. The Republic of Kenya firmly maintains that the cessation of physical exploitation does not mark the conclusion of rehabilitation. For a survivor, educational exclusion, which is frequently caused by the loss or confiscation of civil birth documentation during transit, creates a devastating barrier to reintegration that drastically elevates the hazard of re-exploitation. Consequently, sustainable restorative justice requires comprehensive institutional arrangements that guarantee safe, dignified, and uninterrupted educational pathways for every child.`,
 
     section2Title: 'II. Past International and National Actions',
-    section2Text: `Kenya has consistently maintained an active legal and operational commitment to the international child rights architecture, as a state party to the UN Convention on the Rights of the Child (UNCRC), the Palermo Protocol, and ILO Convention No. 182. Nationally, the Government of Kenya enacted the landmark Children Act 2022 (Act No. 29 of 2022), which explicitly codifies the constitutional right of every child to compulsory, free basic education and mandates the operationalization of specialized Child Protection Units (CPUs) within county administrative divisions.² Furthermore, through the Counter-Trafficking in Persons Act 2010 (Act No. 8 of 2010), Kenya established the National Assistance Trust Fund for Victims of Trafficking, directly financing emergency shelters, medical relief, and community psychological support.³ In educational governance, Kenya's transition to the Competency-Based Curriculum (CBC) facilitates individualized learning assessments, enabling accelerated recovery modules for youths whose schooling was severed by protracted exploitation. Regionally, Kenya spearheads the East African Community (EAC) Child Policy (2016) to synchronize cross-border protective mechanisms with neighboring partner states.⁴`,
+    section2Text: `Kenya has consistently upheld an active legal and operational commitment to the international child protection framework as a state party to the United Nations Convention on the Rights of the Child, the Palermo Protocol, and ILO Convention No. 182. Nationally, the Government of Kenya enacted the landmark Children Act 2022, which codifies the constitutional right of every child to compulsory and free basic education while operationalizing specialized Child Protection Units across county administrations. Furthermore, under the Counter-Trafficking in Persons Act 2010, Kenya instituted the National Assistance Trust Fund for Victims of Trafficking to finance emergency shelter operations, medical relief, and community-based psychosocial rehabilitation. In educational governance, Kenya's transition toward the Competency-Based Curriculum enables individualized assessment pathways and accelerated learning modules for students whose educational journey was interrupted by exploitation. Regionally, Kenya actively advances the East African Community Child Policy of 2016 to harmonize cross-border child protection and repatriation standards with neighboring partner states.`,
 
     section3Title: 'III. Proposed Solutions within UNICEF Mandate',
-    section3Text: `Remaining strictly faithful to the humanitarian and capacity-building mandate of UNICEF—and without encroaching upon sovereign domestic criminal jurisprudence—the Republic of Kenya proposes a three-pronged framework titled the "SAFE-LEARN" Initiative:
-
-1. Unconditional Documentation-Free Re-Enrollment Protocols: UNICEF should collaborate with national educational ministries to formulate temporary "Transit Education Passes." Child survivors whose birth records were destroyed, forged, or retained by traffickers must be granted immediate enrollment into formal and accelerated learning systems without bureaucratic disqualification, accompanied by streamlined, retroactive civil registration procedures.
-
-2. Trauma-Informed Pedagogy and Integrated Community Sanctuaries: In partnership with local civil society, UNICEF must allocate technical grants to train frontline educators in trauma-sensitive psychosocial methodologies. Schools in high-vulnerability regions must be equipped with safe-haven wellness cubicles and dedicated caseworkers, dismantling classroom stigma and offering mental health stabilization alongside vocational literacy.
-
-3. Regional Cross-Border Reintegration Compact and Multilateral Matching Grants: Recognizing the transnational nature of trafficking, Kenya advocates for an East African pilot coordination network under UNICEF auspices for child-tracing and dignified repatriation. Developed donor states are urged to establish equitable, unconditional matching funds through UNICEF's Global Education Thematic Fund to finance decentralized shelter-schools across developing transit corridors.`,
+    section3Text: `In full alignment with the humanitarian and developmental mandate of UNICEF, and respecting sovereign domestic jurisdictions, the Republic of Kenya advocates for a comprehensive multilateral framework titled the SAFE-LEARN Initiative. First, Kenya recommends establishing unconditional documentation-free re-enrollment protocols through UNICEF-administered temporary Transit Education Passes. Under this mechanism, child survivors whose identity records were lost, destroyed, or withheld by traffickers obtain immediate admission into accredited formal and accelerated learning programs without bureaucratic prerequisites, supported by concurrent retroactive civil documentation procedures. Second, Kenya emphasizes the institutionalization of trauma-informed pedagogy and community wellness sanctuaries. In collaboration with local educational authorities and civil society, UNICEF technical assistance should train frontline educators in trauma-sensitive methodologies while equipping schools in vulnerable border corridors with private counseling spaces and dedicated child welfare officers to eradicate classroom stigma. Finally, the delegation calls for a regional cross-border reintegration compact accompanied by multilateral matching grants. By mobilizing equitable resources through the UNICEF Global Education Thematic Fund, international partners can finance decentralized shelter-schools along migration corridors, securing durable reintegration and academic continuity across East Africa.`,
 
     citations: [
-      '1. UNICEF, Committee Study Guide: Expanding Educational Opportunities for Child Survivors of Sexual Exploitation and Trafficking (PUMUN Secretariat, 2026), 4–8.',
-      '2. Republic of Kenya, Children Act, No. 29 of 2022 (Nairobi: Government Printer, 2022), sec. 10–14.',
-      '3. Republic of Kenya, Counter-Trafficking in Persons Act, No. 8 of 2010 (Nairobi: Kenya Law Reports, 2010), sec. 21–24.',
-      '4. East African Community, EAC Child Policy: Promoting and Protecting Children\'s Rights in East Africa (Arusha: EAC Secretariat, 2016), 12–15.'
+      'UNICEF. Expanding Educational Opportunities for Child Survivors of Sexual Exploitation and Trafficking. Committee Study Guide. PUMUN Secretariat, 2026.',
+      'Republic of Kenya. Children Act, No. 29 of 2022. Nairobi: Government Printer, 2022.',
+      'Republic of Kenya. Counter-Trafficking in Persons Act, No. 8 of 2010. Nairobi: Kenya Law Reports, 2010.',
+      'East African Community. EAC Child Policy: Promoting and Protecting Children\'s Rights in East Africa. Arusha: EAC Secretariat, 2016.'
     ]
   };
 
@@ -299,31 +293,18 @@ ${paperContent.citations.join('\n')}`;
               <h2 className="font-bold text-[14px] text-slate-950 tracking-normal uppercase border-b border-slate-300 pb-0.5">
                 {paperContent.section3Title}
               </h2>
-              <div className="text-slate-900 space-y-2">
-                <p className="indent-6">
-                  Remaining strictly faithful to the humanitarian and capacity-building mandate of UNICEF—and without encroaching upon sovereign domestic criminal jurisprudence—the Republic of Kenya proposes a three-pronged framework titled the <strong>"SAFE-LEARN"</strong> Initiative:
-                </p>
-                <div className="pl-4 space-y-1.5 text-xs">
-                  <p>
-                    <strong>1. Unconditional Documentation-Free Re-Enrollment Protocols:</strong> UNICEF should collaborate with national educational ministries to formulate temporary "Transit Education Passes." Child survivors whose birth records were destroyed, forged, or retained by traffickers must be granted immediate enrollment into formal and accelerated learning systems without bureaucratic disqualification, accompanied by streamlined, retroactive civil registration procedures.
-                  </p>
-                  <p>
-                    <strong>2. Trauma-Informed Pedagogy and Integrated Community Sanctuaries:</strong> In partnership with local civil society, UNICEF must allocate technical grants to train frontline educators in trauma-sensitive psychosocial methodologies. Schools in high-vulnerability regions must be equipped with safe-haven wellness cubicles and dedicated caseworkers, dismantling classroom stigma and offering mental health stabilization alongside vocational literacy.
-                  </p>
-                  <p>
-                    <strong>3. Regional Cross-Border Reintegration Compact and Multilateral Matching Grants:</strong> Recognizing the transnational nature of trafficking, Kenya advocates for an East African pilot coordination network under UNICEF auspices for child-tracing and dignified repatriation. Developed donor states are urged to establish equitable, unconditional matching funds through UNICEF's Global Education Thematic Fund to finance decentralized shelter-schools across developing transit corridors.
-                  </p>
-                </div>
-              </div>
+              <p className="text-slate-900 indent-6">
+                {paperContent.section3Text}
+              </p>
             </div>
 
-            {/* Footnotes & Citations */}
-            <div className="border-t border-slate-400 pt-3 text-[11px] text-slate-700 space-y-0.5">
+            {/* References / Bibliography */}
+            <div className="border-t border-slate-400 pt-3 text-[11px] text-slate-700 space-y-1">
               <div className="font-bold uppercase text-[10px] text-slate-800 tracking-wider">
-                Footnotes & References (Chicago Manual of Style 17th Edition):
+                References (Chicago Manual of Style 17th Edition):
               </div>
               {paperContent.citations.map((cite, i) => (
-                <div key={i} className="pl-2">
+                <div key={i} className="pl-4 -indent-4">
                   {cite}
                 </div>
               ))}
