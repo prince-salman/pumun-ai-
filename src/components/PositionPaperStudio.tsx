@@ -7,9 +7,11 @@ import {
   Download, 
   ShieldCheck, 
   Award, 
-  BookOpen
+  BookOpen,
+  RotateCw
 } from 'lucide-react';
 import { SettingsState } from '../types';
+import { generatePositionPaperDocx } from '../utils/docxExport';
 
 interface PositionPaperStudioProps {
   settings?: SettingsState;
@@ -18,6 +20,7 @@ interface PositionPaperStudioProps {
 export default function PositionPaperStudio({ settings }: PositionPaperStudioProps) {
   const [copied, setCopied] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'paper' | 'guide'>('paper');
+  const [isExportingDocx, setIsExportingDocx] = useState<boolean>(false);
 
   const paperContent = {
     country: 'Republic of Kenya',
@@ -75,9 +78,23 @@ ${paperContent.citations.join('\n')}`;
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleDownload = () => {
-    const fullText = `COUNTRY: ${paperContent.country}
-COUNCIL: ${paperContent.council}
+  const handleDownloadDocx = async () => {
+    try {
+      setIsExportingDocx(true);
+      const blob = await generatePositionPaperDocx(paperContent);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Position_Paper_UNICEF_Kenya_${settings?.delegateName?.replace(/\s+/g, '_') || 'Muhamad_Salman'}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Docx generation error:', err);
+      // Fallback to text file if docx generation fails
+      const fullText = `COMMITTEE: ${paperContent.council}
+COUNTRY: ${paperContent.country}
 TOPIC: ${paperContent.topic}
 DELEGATE: ${paperContent.delegate}
 
@@ -93,13 +110,18 @@ ${paperContent.section3Text}
 REFERENCES (Chicago Manual of Style 17th Edition):
 ${paperContent.citations.join('\n')}`;
 
-    const blob = new Blob([fullText], { type: 'text/markdown;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Position Paper_UNICEF_Kenya_${settings?.delegateName?.replace(/\s+/g, '_') || 'Salman'}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
+      const blob = new Blob([fullText], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Position_Paper_UNICEF_Kenya_${settings?.delegateName?.replace(/\s+/g, '_') || 'Muhamad_Salman'}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } finally {
+      setIsExportingDocx(false);
+    }
   };
 
   return (
@@ -120,22 +142,32 @@ ${paperContent.citations.join('\n')}`;
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
+            onClick={handleDownloadDocx}
+            disabled={isExportingDocx}
+            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition"
+            title="Unduh file resmi Microsoft Word (.docx)"
+          >
+            {isExportingDocx ? (
+              <>
+                <RotateCw className="w-4 h-4 animate-spin" />
+                <span>Membuat Word...</span>
+              </>
+            ) : (
+              <>
+                <FileText className="w-4 h-4" />
+                <span>Unduh Word (.docx)</span>
+              </>
+            )}
+          </button>
+
+          <button
+            type="button"
             onClick={handlePrint}
             className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition"
             title="Cetak atau Simpan ke PDF"
           >
             <Printer className="w-4 h-4" />
             <span>Cetak / Ekspor PDF</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleDownload}
-            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs border border-slate-200 flex items-center gap-1.5 transition"
-            title="Unduh file Markdown/Teks"
-          >
-            <Download className="w-4 h-4" />
-            <span>Unduh File</span>
           </button>
 
           <button
@@ -338,6 +370,26 @@ ${paperContent.citations.join('\n')}`;
                 <br />2. <strong>Pelatihan Guru & Pusat Pemulihan:</strong> Guru diajari cara menangani anak trauma, bukan malah memarahi atau mendiskriminasi mereka.
                 <br />3. <strong>Dana Hibah Negara Maju & Kerjasama Perbatasan:</strong> Mengajak negara-negara kaya (seperti Swedia, Kanada, AS) membantu dana pembangunan sekolah aman di negara berkembang tanpa mencampuri hukum domestik.
               </p>
+            </div>
+
+            <div className="bg-emerald-50/80 p-4 rounded-xl border border-emerald-200 space-y-1.5">
+              <h4 className="font-bold text-sm text-emerald-900 flex items-center gap-1.5">
+                <span>💡 Catatan Penting: Aturan Tahun (1–5 Tahun Terakhir) di Syarat MUN</span>
+              </h4>
+              <div className="text-xs text-slate-700 leading-relaxed space-y-1">
+                <p>
+                  Di MUN, panitia mensyaratkan <strong>data statistik, bukti kasus, dan aksi nasional harus mutakhir (1–5 tahun terakhir)</strong>:
+                </p>
+                <p>
+                  • <strong>Children Act 2022:</strong> Senjata utama Kenya adalah undang-undang tahun <strong>2022</strong> (tepat dalam rentang 1–4 tahun terakhir). Ini adalah hukum terbaru Kenya yang menggantikan UU lama tahun 2001!
+                </p>
+                <p>
+                  • <strong>Traktat Pokok Internasional (UNCRC 1989 & Palermo Protocol 2000):</strong> Merupakan landasan hukum dasar (*foundational treaties*) yang berlaku selamanya bagi seluruh negara anggota PBB, sehingga sah dan wajib dikutip.
+                </p>
+                <p>
+                  • <strong>Data Statistik & Laporan Kasus:</strong> Seluruh rujukan kita berpatokan pada laporan terbaru PUMUN Secretariat (2026) dan UNICEF terkini pasca-pandemi, sehingga 100% aman dan memenuhi syarat akademik lomba.
+                </p>
+              </div>
             </div>
           </div>
         </div>
