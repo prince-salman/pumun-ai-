@@ -7,7 +7,7 @@ import {
   Check, 
   BookOpen, 
   Mic, 
-  MicOff,
+  MicOff, 
   Clock, 
   Layers, 
   AlertCircle,
@@ -161,35 +161,35 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
   return (
     <div className="space-y-6">
       {/* Intro banner */}
-      <div className="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 border border-emerald-500/20 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Mic className="w-5 h-5 text-emerald-400" />
+            <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+              <Mic className="w-5 h-5 text-emerald-600" />
               Live Speech Teleprompter (Virtual Co-Delegate)
             </h2>
-            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              TypeScript • 3-Lapis Fonetik
+            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+              3-Lapis Fonetik
             </span>
           </div>
-          <p className="text-sm text-slate-300 mt-1">
-            Ketik atau <strong>bicara lewat mic dalam Bahasa Indonesia</strong>. Asisten mengubahnya menjadi naskah diplomasi PBB resmi lengkap dengan <strong>panduan cara baca fonetik</strong> dan audio.
+          <p className="text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+            Ketik atau <strong>bicara lewat mic dalam Bahasa Indonesia</strong>. Asisten mengubahnya menjadi naskah diplomasi PBB resmi lengkap dengan <strong>panduan cara baca fonetik</strong> dan pelafalan audio.
           </p>
         </div>
 
-        <div className="shrink-0 flex items-center gap-2 text-xs text-slate-400 bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800">
-          <Clock className="w-4 h-4 text-amber-400" />
-          <span>Waktu Bicara: <strong>{selectedMode.duration} detik</strong></span>
+        <div className="shrink-0 flex items-center gap-2 text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+          <Clock className="w-4 h-4 text-amber-600" />
+          <span>Waktu Bicara: <strong className="text-slate-900">{selectedMode.duration} detik</strong></span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Input Form (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
             {/* Mode selection */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
                 1. Pilih Format & Durasi Pidato
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -200,8 +200,8 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
                     onClick={() => setSelectedMode(mode)}
                     className={`p-2.5 rounded-xl text-left border transition text-xs flex flex-col justify-between ${
                       selectedMode.id === mode.id
-                        ? 'bg-emerald-600/15 border-emerald-500 text-emerald-300 font-semibold shadow-inner'
-                        : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                        ? 'bg-emerald-50 border-emerald-500 text-emerald-950 font-bold shadow-sm'
+                        : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                     }`}
                   >
                     <span>{mode.label}</span>
@@ -213,7 +213,7 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
 
             {/* Subtopic input */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 2. Sub-Isu / Topik Debat
               </label>
               <input
@@ -221,14 +221,14 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
                 value={subtopic}
                 onChange={(e) => setSubtopic(e.target.value)}
                 placeholder="Contoh: Akses Sekolah Tanpa Akta, Pemulihan Trauma..."
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-600 transition"
               />
             </div>
 
             {/* Quick Topic Chips */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
-                <span>Inspirasi Poin Cepat (Klik untuk Pasang)</span>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                Inspirasi Poin Cepat (Klik untuk Pasang)
               </label>
               <div className="flex flex-wrap gap-1.5">
                 {QUICK_TOPICS.map((topic, i) => (
@@ -236,7 +236,7 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
                     key={i}
                     type="button"
                     onClick={() => setIndonesianIdea(topic.prompt)}
-                    className="text-xs bg-slate-950 hover:bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg border border-slate-800 transition text-left"
+                    className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-200 transition text-left"
                   >
                     💡 {topic.label}
                   </button>
@@ -247,27 +247,27 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
             {/* Indonesian input textarea with Voice Recognition Mic */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
                   3. Ide / Pesan Anda (Bahasa Indonesia)
                 </label>
                 <button
                   type="button"
                   onClick={toggleListening}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
                     isListening
-                      ? 'bg-red-500/20 text-red-300 border border-red-500/40 animate-pulse'
-                      : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20'
+                      ? 'bg-rose-100 text-rose-700 border border-rose-300 animate-pulse'
+                      : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
                   }`}
                   title={isListening ? "Sedang merekam suara... Klik untuk berhenti" : "Klik untuk bicara lewat mic"}
                 >
                   {isListening ? (
                     <>
-                      <MicOff className="w-3.5 h-3.5 text-red-400" />
+                      <MicOff className="w-3.5 h-3.5 text-rose-600" />
                       <span>Mendengarkan...</span>
                     </>
                   ) : (
                     <>
-                      <Mic className="w-3.5 h-3.5 text-emerald-400" />
+                      <Mic className="w-3.5 h-3.5 text-emerald-700" />
                       <span>Bicara via Mic 🎙️</span>
                     </>
                   )}
@@ -278,7 +278,7 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
                 value={indonesianIdea}
                 onChange={(e) => setIndonesianIdea(e.target.value)}
                 placeholder="Tulis atau klik 'Bicara via Mic' untuk ngomong langsung dalam Bahasa Indonesia... (Contoh: Saya mau usul bantuan dana negara maju untuk bangun shelter di perbatasan)"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition resize-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-600 transition resize-none"
               />
             </div>
 
@@ -286,16 +286,16 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
             <button
               onClick={handleGenerate}
               disabled={isLoading}
-              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-sm shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2 transition disabled:opacity-50"
+              className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition disabled:opacity-50"
             >
               {isLoading ? (
                 <>
-                  <RotateCw className="w-4 h-4 animate-spin" />
+                  <RotateCw className="w-4 h-4 animate-spin text-white" />
                   <span>Meracik Pidato Diplomasi ({settings.selectedModel})...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4" />
+                  <Sparkles className="w-4 h-4 text-emerald-400" />
                   <span>Susun Pidato Diplomasi Kenya</span>
                 </>
               )}
@@ -311,10 +311,10 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
             <CountdownTimer initialSeconds={selectedMode.duration} />
 
             {/* Speech Stats & Audio Control */}
-            <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-3 flex flex-col justify-between h-full shadow-lg">
+            <div className="bg-white border border-slate-200 rounded-xl p-3 flex flex-col justify-between h-full shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-semibold uppercase">Estimasi Baca</span>
-                <span className="text-xs font-mono text-emerald-400">
+                <span className="text-xs text-slate-500 font-bold uppercase">Estimasi Baca</span>
+                <span className="text-xs font-mono font-bold text-emerald-700">
                   {speechData.wordCount || 0} kata (~{speechData.estimatedSeconds || 0}s)
                 </span>
               </div>
@@ -322,20 +322,20 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
               <div className="flex items-center gap-2 pt-2">
                 <button
                   onClick={handleToggleAudio}
-                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition ${
+                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition ${
                     isPlayingAudio
-                      ? 'bg-red-500/20 text-red-300 border border-red-500/30 animate-pulse'
-                      : 'bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700'
+                      ? 'bg-rose-100 text-rose-700 border border-rose-300 animate-pulse'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200'
                   }`}
                 >
                   {isPlayingAudio ? (
                     <>
-                      <VolumeX className="w-4 h-4 text-red-400" />
+                      <VolumeX className="w-4 h-4 text-rose-600" />
                       <span>Hentikan Suara</span>
                     </>
                   ) : (
                     <>
-                      <Volume2 className="w-4 h-4 text-emerald-400" />
+                      <Volume2 className="w-4 h-4 text-emerald-600" />
                       <span>Dengar Lafal Audio</span>
                     </>
                   )}
@@ -343,10 +343,10 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
 
                 <button
                   onClick={() => handleCopy(speechData.english)}
-                  className="py-1.5 px-3 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1 transition"
+                  className="py-1.5 px-3 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center gap-1 transition"
                   title="Salin Naskah Inggris"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copied ? 'Tersalin!' : 'Salin'}</span>
                 </button>
               </div>
@@ -354,55 +354,55 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
           </div>
 
           {/* Teleprompter Card */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col min-h-[420px]">
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[420px]">
             {/* View tabs */}
-            <div className="flex border-b border-slate-800 bg-slate-950/60 p-1.5 gap-1">
+            <div className="flex border-b border-slate-200 bg-slate-50 p-1.5 gap-1">
               <button
                 type="button"
                 onClick={() => setActiveTab('english')}
-                className={`flex-1 py-2 px-3 rounded-xl text-xs font-medium transition flex items-center justify-center gap-1.5 ${
+                className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 ${
                   activeTab === 'english'
-                    ? 'bg-slate-800 text-white shadow-sm border border-slate-700 font-semibold'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200 font-bold'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+                <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Naskah Inggris</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('caraBaca')}
-                className={`flex-1 py-2 px-3 rounded-xl text-xs font-medium transition flex items-center justify-center gap-1.5 ${
+                className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 ${
                   activeTab === 'caraBaca'
-                    ? 'bg-amber-500/15 text-amber-300 shadow-sm border border-amber-500/30 font-semibold'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-amber-100 text-amber-900 shadow-sm border border-amber-300 font-bold'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <Mic className="w-3.5 h-3.5 text-amber-400" />
+                <Mic className="w-3.5 h-3.5 text-amber-700" />
                 <span>Cara Baca (Fonetik)</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('indoMeaning')}
-                className={`flex-1 py-2 px-3 rounded-xl text-xs font-medium transition flex items-center justify-center gap-1.5 ${
+                className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 ${
                   activeTab === 'indoMeaning'
-                    ? 'bg-blue-500/15 text-blue-300 shadow-sm border border-blue-500/30 font-semibold'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-blue-100 text-blue-900 shadow-sm border border-blue-300 font-bold'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <HelpCircle className="w-3.5 h-3.5 text-blue-400" />
+                <HelpCircle className="w-3.5 h-3.5 text-blue-700" />
                 <span>Makna Indonesia</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('all')}
-                className={`py-2 px-3 rounded-xl text-xs font-medium transition flex items-center justify-center gap-1.5 ${
+                className={`py-2 px-3 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 ${
                   activeTab === 'all'
-                    ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 font-semibold'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-emerald-100 text-emerald-900 border border-emerald-300 font-bold'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
                 title="Tampilkan semua 3 lapis sekaligus"
               >
@@ -414,8 +414,8 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
             {/* Teleprompter Content Area */}
             <div className="p-6 flex-1 overflow-y-auto space-y-4">
               {speechData.isFallback && (
-                <div className="bg-amber-950/40 border border-amber-500/30 text-amber-300 text-xs px-3 py-2 rounded-xl flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
+                <div className="bg-amber-50 border border-amber-200 text-amber-900 text-xs px-3.5 py-2.5 rounded-xl flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
                   <span>Menampilkan naskah diplomasi resmi standar Kenya (Mode Siaga Offline).</span>
                 </div>
               )}
@@ -423,11 +423,11 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
               {/* Single tab: English */}
               {activeTab === 'english' && (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-2">
-                    <span className="font-semibold text-emerald-400">OFFICIAL PARLIAMENTARY ENGLISH</span>
+                  <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-100 pb-2">
+                    <span className="font-bold text-emerald-800 uppercase tracking-wide">OFFICIAL PARLIAMENTARY ENGLISH</span>
                     <span>Format: PUMUN UNICEF</span>
                   </div>
-                  <div className="font-editorial text-lg sm:text-xl text-slate-100 leading-relaxed whitespace-pre-line tracking-wide">
+                  <div className="font-editorial text-lg sm:text-xl text-slate-900 leading-relaxed whitespace-pre-line tracking-wide">
                     {speechData.english}
                   </div>
                 </div>
@@ -436,11 +436,11 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
               {/* Single tab: Cara Baca */}
               {activeTab === 'caraBaca' && (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between text-xs text-amber-400 border-b border-slate-800 pb-2">
-                    <span className="font-semibold uppercase">Panduan Lafal Bahasa Indonesia (Baca Saja Ini di Podium!)</span>
+                  <div className="flex items-center justify-between text-xs text-amber-800 border-b border-amber-100 pb-2">
+                    <span className="font-bold uppercase tracking-wide">Panduan Lafal Bahasa Indonesia (Baca Saja Ini di Podium!)</span>
                     <span>Suku kata ejaan santai</span>
                   </div>
-                  <div className="font-sans text-base sm:text-lg text-amber-200/90 leading-loose whitespace-pre-line font-medium bg-amber-950/20 p-4 rounded-xl border border-amber-500/20">
+                  <div className="font-mono text-base sm:text-xl text-slate-900 leading-loose whitespace-pre-line font-medium bg-amber-50/70 p-5 rounded-xl border border-amber-200">
                     {speechData.caraBaca}
                   </div>
                 </div>
@@ -449,11 +449,11 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
               {/* Single tab: Makna Indonesia */}
               {activeTab === 'indoMeaning' && (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between text-xs text-blue-400 border-b border-slate-800 pb-2">
-                    <span className="font-semibold uppercase">Makna & Terjemahan Strategis</span>
+                  <div className="flex items-center justify-between text-xs text-blue-800 border-b border-blue-100 pb-2">
+                    <span className="font-bold uppercase tracking-wide">Makna & Terjemahan Strategis</span>
                     <span>Pahami poin diplomasi Anda</span>
                   </div>
-                  <div className="text-sm sm:text-base text-slate-300 leading-relaxed whitespace-pre-line bg-blue-950/20 p-4 rounded-xl border border-blue-500/20">
+                  <div className="text-sm sm:text-base text-slate-800 leading-relaxed whitespace-pre-line bg-blue-50/50 p-5 rounded-xl border border-blue-200">
                     {speechData.indoMeaning}
                   </div>
                 </div>
@@ -463,31 +463,31 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
               {activeTab === 'all' && (
                 <div className="space-y-6">
                   {/* Layer 1 */}
-                  <div className="border border-emerald-500/30 rounded-xl p-4 bg-emerald-950/10 space-y-2">
-                    <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <div className="border border-emerald-200 rounded-xl p-4 bg-emerald-50/30 space-y-2">
+                    <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
                       <BookOpen className="w-3.5 h-3.5" /> 1. Naskah Resmi Bahasa Inggris
                     </div>
-                    <div className="font-editorial text-base sm:text-lg text-slate-100 leading-relaxed whitespace-pre-line">
+                    <div className="font-editorial text-base sm:text-lg text-slate-900 leading-relaxed whitespace-pre-line">
                       {speechData.english}
                     </div>
                   </div>
 
                   {/* Layer 2 */}
-                  <div className="border border-amber-500/30 rounded-xl p-4 bg-amber-950/15 space-y-2">
-                    <div className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <div className="border border-amber-200 rounded-xl p-4 bg-amber-50/40 space-y-2">
+                    <div className="text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
                       <Mic className="w-3.5 h-3.5" /> 2. Panduan Cara Baca (Lafal Fonetik)
                     </div>
-                    <div className="text-sm sm:text-base text-amber-200/90 leading-loose whitespace-pre-line font-medium">
+                    <div className="text-sm sm:text-base font-mono text-slate-900 leading-loose whitespace-pre-line font-medium">
                       {speechData.caraBaca}
                     </div>
                   </div>
 
                   {/* Layer 3 */}
-                  <div className="border border-blue-500/30 rounded-xl p-4 bg-blue-950/15 space-y-2">
-                    <div className="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <div className="border border-blue-200 rounded-xl p-4 bg-blue-50/30 space-y-2">
+                    <div className="text-xs font-bold text-blue-800 uppercase tracking-wider flex items-center gap-1.5">
                       <HelpCircle className="w-3.5 h-3.5" /> 3. Makna & Terjemahan Indonesia
                     </div>
-                    <div className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
+                    <div className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
                       {speechData.indoMeaning}
                     </div>
                   </div>
@@ -496,10 +496,10 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
             </div>
 
             {/* Bottom Footer Yielding Reminder */}
-            <div className="bg-slate-950/90 border-t border-slate-800 p-3 px-6 text-xs text-slate-400 flex items-center justify-between">
+            <div className="bg-slate-50 border-t border-slate-200 p-3 px-6 text-xs text-slate-600 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                Selesai bicara sebelum waktu habis? Tutup dengan: <em>"Kenya yields its time to the Dais."</em>
+                <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                Selesai bicara sebelum waktu habis? Tutup dengan: <em className="font-semibold text-slate-800">"Kenya yields its time to the Dais."</em>
               </span>
               <span className="text-[11px] font-mono text-slate-500">Model: {speechData.modelUsed || settings.selectedModel}</span>
             </div>

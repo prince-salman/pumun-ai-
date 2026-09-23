@@ -16,7 +16,7 @@ export default function App() {
   const { settings, updateSetting, resetSettings } = useSettings();
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-black">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900">
       {/* Sticky Top Navbar */}
       <Navbar
         activeTab={activeTab}
@@ -27,7 +27,7 @@ export default function App() {
       />
 
       {/* Main Workstation Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {activeTab === 'teleprompter' && <SpeechTeleprompter settings={settings} />}
         {activeTab === 'radar' && <DebateRadar settings={settings} />}
         {activeTab === 'cheatsheet' && <QuickCheatSheet settings={settings} />}
@@ -37,22 +37,22 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950/80 py-4 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <footer className="border-t border-slate-200 bg-white py-4 text-xs text-slate-500 mt-auto">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span>🇰🇪 Republic of Kenya • PUMUN Regeneration 2026 (SDC 1.0)</span>
-            <span className="text-slate-700">•</span>
-            <span className="text-emerald-500 font-medium">Solo Delegate Muhamad Salman</span>
+            <span className="font-semibold text-slate-700">Republic of Kenya • PUMUN Regeneration 2026 (SDC 1.0)</span>
+            <span className="text-slate-300">•</span>
+            <span className="text-emerald-700 font-medium">Solo Delegate: Muhamad Salman</span>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1 text-slate-400">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>TypeScript Ready • Offline Knowledge Base</span>
+            <span className="flex items-center gap-1.5 text-slate-500">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>PUMUN Protocol Compliant</span>
             </span>
-            <span className="text-slate-700">•</span>
-            <span className="text-slate-400 font-mono text-[11px]">
-              AI: {settings.selectedModel}
+            <span className="text-slate-300">•</span>
+            <span className="text-slate-500 font-mono text-[11px] bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+              Model: {settings.selectedModel}
             </span>
           </div>
         </div>

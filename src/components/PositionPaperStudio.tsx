@@ -105,13 +105,13 @@ ${paperContent.citations.join('\n')}`;
   return (
     <div className="space-y-6">
       {/* Header and Compliance Summary */}
-      <div className="bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-500/20 rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <FileText className="w-5 h-5 text-emerald-400" />
+          <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-emerald-600" />
             Position Paper Studio (PUMUN SDC 1.0)
           </h2>
-          <p className="text-sm text-slate-300 mt-1">
+          <p className="text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
             Naskah resmi Position Paper Delegasi Republik Kenya. Disusun presisi mengikuti Academic Guideline PUMUN 2026 (Format A4, Chicago 17th ed, bebas plagiarisme).
           </p>
         </div>
@@ -121,7 +121,7 @@ ${paperContent.citations.join('\n')}`;
           <button
             type="button"
             onClick={handlePrint}
-            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs flex items-center gap-1.5 shadow-md transition"
+            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition"
             title="Cetak atau Simpan ke PDF"
           >
             <Printer className="w-4 h-4" />
@@ -131,7 +131,7 @@ ${paperContent.citations.join('\n')}`;
           <button
             type="button"
             onClick={handleDownload}
-            className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs border border-slate-700 flex items-center gap-1.5 transition"
+            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs border border-slate-200 flex items-center gap-1.5 transition"
             title="Unduh file Markdown/Teks"
           >
             <Download className="w-4 h-4" />
@@ -141,10 +141,10 @@ ${paperContent.citations.join('\n')}`;
           <button
             type="button"
             onClick={handleCopyText}
-            className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs border border-slate-700 flex items-center gap-1.5 transition"
+            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs border border-slate-200 flex items-center gap-1.5 transition"
             title="Salin Naskah Lengkap"
           >
-            {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+            {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
             <span>{copied ? 'Tersalin!' : 'Salin'}</span>
           </button>
         </div>
@@ -152,48 +152,48 @@ ${paperContent.citations.join('\n')}`;
 
       {/* Compliance Checklist Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center gap-2.5">
-          <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex items-center gap-2.5 shadow-sm">
+          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
           <div className="text-xs">
-            <div className="font-semibold text-slate-200">Turnitin &lt; 15% Safe</div>
-            <div className="text-slate-400 text-[11px]">Bebas plagiarisme</div>
+            <div className="font-bold text-slate-800">Turnitin &lt; 15% Safe</div>
+            <div className="text-slate-500 text-[11px]">Bebas plagiarisme</div>
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center gap-2.5">
-          <Award className="w-4 h-4 text-amber-400 shrink-0" />
+        <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex items-center gap-2.5 shadow-sm">
+          <Award className="w-4 h-4 text-amber-600 shrink-0" />
           <div className="text-xs">
-            <div className="font-semibold text-slate-200">Chicago 17th Ed</div>
-            <div className="text-slate-400 text-[11px]">Format kutipan resmi</div>
+            <div className="font-bold text-slate-800">Chicago 17th Ed</div>
+            <div className="text-slate-500 text-[11px]">Format kutipan resmi</div>
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center gap-2.5">
-          <BookOpen className="w-4 h-4 text-blue-400 shrink-0" />
+        <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex items-center gap-2.5 shadow-sm">
+          <BookOpen className="w-4 h-4 text-blue-600 shrink-0" />
           <div className="text-xs">
-            <div className="font-semibold text-slate-200">Panjang: 1 Halaman A4</div>
-            <div className="text-slate-400 text-[11px]">Sesuai SDC Guide</div>
+            <div className="font-bold text-slate-800">Panjang: 1 Halaman A4</div>
+            <div className="text-slate-500 text-[11px]">Sesuai SDC Guide</div>
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center gap-2.5">
-          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="bg-white border border-slate-200 rounded-xl p-3.5 flex items-center gap-2.5 shadow-sm">
+          <Check className="w-4 h-4 text-emerald-600 shrink-0" />
           <div className="text-xs">
-            <div className="font-semibold text-slate-200">Mandat UNICEF</div>
-            <div className="text-slate-400 text-[11px]">100% Sesuai batas</div>
+            <div className="font-bold text-slate-800">Mandat UNICEF</div>
+            <div className="text-slate-500 text-[11px]">100% Sesuai batas</div>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-slate-800 gap-4 text-xs font-semibold">
+      <div className="flex border-b border-slate-200 gap-4 text-xs font-semibold">
         <button
           type="button"
           onClick={() => setActiveTab('paper')}
           className={`pb-3 border-b-2 transition flex items-center gap-2 ${
             activeTab === 'paper'
-              ? 'border-emerald-500 text-emerald-400'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              ? 'border-emerald-600 text-emerald-800 font-bold'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -205,8 +205,8 @@ ${paperContent.citations.join('\n')}`;
           onClick={() => setActiveTab('guide')}
           className={`pb-3 border-b-2 transition flex items-center gap-2 ${
             activeTab === 'guide'
-              ? 'border-emerald-500 text-emerald-400'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              ? 'border-emerald-600 text-emerald-800 font-bold'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
           <BookOpen className="w-4 h-4" />
@@ -216,11 +216,11 @@ ${paperContent.citations.join('\n')}`;
 
       {/* Tab Content: Realistic Paper Preview */}
       {activeTab === 'paper' && (
-        <div className="bg-slate-950 p-2 sm:p-6 rounded-2xl flex justify-center overflow-x-auto">
+        <div className="bg-slate-100 p-4 sm:p-8 rounded-2xl flex justify-center overflow-x-auto border border-slate-200">
           {/* Printable A4 Paper Container */}
           <div 
             id="printable-position-paper"
-            className="w-full max-w-[800px] bg-white text-black p-8 sm:p-12 rounded-lg shadow-2xl space-y-6 font-serif text-[13px] leading-relaxed text-justify selection:bg-amber-200 selection:text-black"
+            className="w-full max-w-[800px] bg-white text-black p-8 sm:p-12 rounded-lg shadow-md border border-slate-200 space-y-6 font-serif text-[13px] leading-relaxed text-justify selection:bg-amber-100 selection:text-black"
             style={{ fontFamily: '"Times New Roman", Times, serif' }}
           >
             {/* Paper Header */}
@@ -302,27 +302,27 @@ ${paperContent.citations.join('\n')}`;
 
       {/* Tab Content: Indonesian Guide */}
       {activeTab === 'guide' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
-          <div className="border-b border-slate-800 pb-3">
-            <h3 className="text-base font-bold text-white">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm">
+          <div className="border-b border-slate-100 pb-3">
+            <h3 className="text-base font-extrabold text-slate-900">
               Buku Panduan Memahami Isi Position Paper Anda
             </h3>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               Sebagai solo delegate, Anda harus tahu garis besar isi paper Anda jika sewaktu-waktu ditanya oleh Chair atau delegasi lain saat sesi debat!
             </p>
           </div>
 
           <div className="space-y-4">
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-1.5">
-              <h4 className="font-bold text-sm text-emerald-400">Bagian 1: Latar Belakang & Situasi Masalah</h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+              <h4 className="font-bold text-sm text-emerald-800">Bagian 1: Latar Belakang & Situasi Masalah</h4>
+              <p className="text-xs text-slate-700 leading-relaxed">
                 Menjelaskan bahwa penyelamatan anak korban dari tangan pelaku hanyalah awal. Masalah terbesarnya adalah saat anak ingin kembali bersekolah, mereka sering kali tidak punya akta lahir/dokumen karena disita atau dihancurkan oleh pelaku perdagangan orang. Akibatnya mereka ditolak sekolah, mengalami trauma, dan rawan dieksploitasi lagi.
               </p>
             </div>
 
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-1.5">
-              <h4 className="font-bold text-sm text-amber-400">Bagian 2: Langkah Nyata Hukum Nasional Kenya</h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+              <h4 className="font-bold text-sm text-amber-800">Bagian 2: Langkah Nyata Hukum Nasional Kenya</h4>
+              <p className="text-xs text-slate-700 leading-relaxed">
                 Kenya bukan sekadar bicara, tapi sudah punya bukti nyata:
                 <br />• <strong>Children Act 2022:</strong> Menjamin sekolah gratis & unit perlindungan anak di kantor polisi.
                 <br />• <strong>Counter-Trafficking in Persons Act 2010:</strong> Membentuk dana bantuan korban untuk rumah aman.
@@ -330,9 +330,9 @@ ${paperContent.citations.join('\n')}`;
               </p>
             </div>
 
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-1.5">
-              <h4 className="font-bold text-sm text-blue-400">Bagian 3: Solusi yang Kita Tawarkan (Inisiatif SAFE-LEARN)</h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+              <h4 className="font-bold text-sm text-blue-800">Bagian 3: Solusi yang Kita Tawarkan (Inisiatif SAFE-LEARN)</h4>
+              <p className="text-xs text-slate-700 leading-relaxed">
                 Tiga pilar solusi diplomasi Kenya:
                 <br />1. <strong>Transit Education Pass:</strong> Izin masuk sekolah darurat tanpa perlu menunggu akta lahir jadi.
                 <br />2. <strong>Pelatihan Guru & Pusat Pemulihan:</strong> Guru diajari cara menangani anak trauma, bukan malah memarahi atau mendiskriminasi mereka.
