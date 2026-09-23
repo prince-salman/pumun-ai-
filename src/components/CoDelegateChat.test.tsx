@@ -36,14 +36,14 @@ describe('CoDelegateChat Component', () => {
 
     expect(screen.getByText(/Nata \(Virtual Co-Delegate\)/i)).toBeInTheDocument();
     expect(screen.getByText(/Partner Salman 🇰🇪/i)).toBeInTheDocument();
-    expect(screen.getByText(/Halo Salman! Aku/i)).toBeInTheDocument();
+    expect(screen.getByText(/Halo Salman/i)).toBeInTheDocument();
   });
 
   it('renders quick suggestion chips and triggers question on click', async () => {
     const onNavigate = vi.fn();
     render(<CoDelegateChat settings={mockSettings} onNavigate={onNavigate} />);
 
-    const rollCallChip = screen.getByRole('button', { name: /Dipanggil di Roll Call!/i });
+    const rollCallChip = screen.getByRole('button', { name: /Dipanggil di Roll Call/i });
     expect(rollCallChip).toBeInTheDocument();
 
     fireEvent.click(rollCallChip);
@@ -55,7 +55,7 @@ describe('CoDelegateChat Component', () => {
 
     // Should receive response with speech card
     await waitFor(() => {
-      expect(screen.getByText(/Tenang Salman!/i)).toBeInTheDocument();
+      expect(screen.getByText(/Tenang Salman/i)).toBeInTheDocument();
       expect(screen.getByText(/NASKAH SIAP BACA UNTUK SALMAN/i)).toBeInTheDocument();
       expect(screen.getByText(/"Pre-sent end Fow-ting."/i)).toBeInTheDocument();
     });
@@ -85,11 +85,11 @@ describe('CoDelegateChat Component', () => {
     render(<CoDelegateChat settings={mockSettings} onNavigate={onNavigate} />);
 
     // Click quick prompt for roll call which contains shortcut
-    const rollCallChip = screen.getByRole('button', { name: /Dipanggil di Roll Call!/i });
+    const rollCallChip = screen.getByRole('button', { name: /Dipanggil di Roll Call/i });
     fireEvent.click(rollCallChip);
 
     await waitFor(() => {
-      const shortcutBtn = screen.getByText(/Buka Contekan Darurat ⚡/i);
+      const shortcutBtn = screen.getByText(/Buka Contekan Darurat/i);
       expect(shortcutBtn).toBeInTheDocument();
       fireEvent.click(shortcutBtn);
       expect(onNavigate).toHaveBeenCalledWith('cheatsheet');

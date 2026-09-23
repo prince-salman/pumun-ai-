@@ -27,48 +27,60 @@ interface CoDelegateChatProps {
 
 const STORAGE_KEY = 'kenya_co_delegate_chat_v1';
 
+function cleanDisplayText(text: string): string {
+  if (!text) return '';
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/[`~]/g, '')
+    .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
+    .trim();
+}
+
 const DEFAULT_MESSAGES: ChatMessage[] = [
   {
     id: 'msg-init-1',
     sender: 'nata',
     timestamp: '09:00',
-    text: `Halo Salman! Aku **Nata**, virtual co-delegate kamu untuk mewakili Republik Kenya di UNICEF PUMUN 2026. 🇰🇪✨
+    text: `Halo Salman. Aku Nata, virtual co-delegate kamu untuk mewakili Republik Kenya di UNICEF PUMUN 2026.
 
-Jangan khawatir atau grogi ya! Walaupun kamu solo delegate, aku di sini 100% mendampingi kamu.
+Jangan khawatir atau grogi. Walaupun kamu solo delegate, aku di sini mendampingi kamu sepenuhnya.
 
-**Kamu ga perlu repot mikirin mau buka menu apa atau bingung cara pakainya.**
-Cukup ceritakan apa yang terjadi di ruangan sidang atau tanya apa saja dengan bahasa santai sehari-hari. Aku yang akan:
-1. 📝 Bikinkan naskah pidato instan dengan **Cara Baca Fonetik Indonesia** (ga akan salah lafal).
-2. 👂 Beritahu apa maksud omongan delegasi lain dan cara menangkisnya.
-3. ⚡ Arahkan dan bukakan fitur yang tepat saat kamu butuhkan.
+Kamu tidak perlu pusing memikirkan mau buka menu apa atau bingung cara pakainya. Cukup ceritakan apa yang terjadi di ruangan sidang atau tanya apa saja dengan bahasa santai sehari-hari.
 
-Coba klik salah satu tombol cepat di bawah atau ketik situasi sidang kamu:`
+Aku yang akan:
+1. Menyiapkan naskah pidato instan dengan Cara Baca Fonetik ejaan Indonesia (tidak akan salah lafal).
+2. Menjelaskan apa maksud omongan delegasi lain dan cara meresponnya.
+3. Memberikan panduan langkah demi langkah saat giliran kamu bicara.
+
+Ketik pertanyaan kamu di bawah atau pilih salah satu bantuan cepat berikut:`
   }
 ];
 
 const QUICK_PROMPTS = [
   { 
-    label: '🙋 Dipanggil di Roll Call!', 
+    label: 'Dipanggil di Roll Call', 
     prompt: 'Nama Republic of Kenya baru saja dipanggil saat Roll Call oleh Chair, aku harus jawab apa dan angkat apa?' 
   },
   { 
-    label: '🎙️ Bikin pidato 60s (Sekolah)', 
+    label: 'Bikin pidato 60 detik (Sekolah)', 
     prompt: 'Bikinkan pidato podium 60 detik tentang hak sekolah anak korban eksploitasi di Kenya tanpa syarat akta lahir.' 
   },
   { 
-    label: '👂 Lawan pidato, respon gimana?', 
+    label: 'Lawan pidato, respon gimana', 
     prompt: 'Ada negara yang lagi bicara dan mengkritik atau mempertanyakan dana rehabilitasi anak di perbatasan Kenya, apa yang harus aku lakukan?' 
   },
   { 
-    label: '🚽 Izin toilet / Interupsi', 
+    label: 'Izin ke toilet / Interupsi', 
     prompt: 'Aku mau izin ke toilet atau mengajukan interupsi saat sidang berlangsung, gimana caranya?' 
   },
   { 
-    label: '🤝 Cara ajak negara koalisi', 
+    label: 'Cara ajak negara koalisi', 
     prompt: 'Gimana cara ngajak negara seperti Swedia atau Kanada untuk co-sponsor draft resolusi bareng Kenya?' 
   },
   { 
-    label: '⚡ Arti Point of Privilege / Order', 
+    label: 'Arti Point of Privilege', 
     prompt: 'Jelaskan perbedaan Point of Order dan Point of Personal Privilege secara singkat dan kapan aku pakai.' 
   }
 ];
@@ -323,7 +335,7 @@ export default function CoDelegateChat({ settings, onNavigate }: CoDelegateChatP
                       : 'bg-white text-slate-800 border border-slate-200/80 rounded-bl-xs'
                   }`}
                 >
-                  {msg.text}
+                  {cleanDisplayText(msg.text)}
                 </div>
 
                 {/* Embedded Speech Card if available */}
