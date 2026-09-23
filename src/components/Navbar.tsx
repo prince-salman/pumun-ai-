@@ -1,5 +1,6 @@
 import React from 'react';
 import { 
+  Headphones,
   Mic, 
   Radar,
   Zap, 
@@ -31,12 +32,13 @@ export default function Navbar({ activeTab, setActiveTab, settings, updateSettin
   };
 
   const navItems = [
-    { id: 'teleprompter', label: 'Live Teleprompter', icon: Mic, badge: '3-Lapis' },
-    { id: 'radar', label: 'Radar Subtopik & Respon', icon: Radar, badge: 'Prediksi' },
-    { id: 'cheatsheet', label: 'Quick Cheat Sheet', icon: Zap, badge: 'Darurat' },
-    { id: 'pospap', label: 'Position Paper', icon: FileText, badge: 'A4' },
-    { id: 'countries', label: '22 Negara Intel', icon: Globe, badge: '22' },
-    { id: 'resolution', label: 'Resolution Crafter', icon: FileCode, badge: 'Klausul' }
+    { id: 'listener', label: 'Dengar Lawan & Tangkis', icon: Headphones, badge: 'Live' },
+    { id: 'teleprompter', label: 'Pidato Saya', icon: Mic },
+    { id: 'cheatsheet', label: 'Contekan Darurat', icon: Zap },
+    { id: 'radar', label: 'Radar Subtopik', icon: Radar },
+    { id: 'countries', label: '22 Negara Intel', icon: Globe },
+    { id: 'resolution', label: 'Resolution Crafter', icon: FileCode },
+    { id: 'pospap', label: 'Position Paper', icon: FileText }
   ];
 
   return (

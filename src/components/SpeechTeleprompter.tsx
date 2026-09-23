@@ -12,7 +12,9 @@ import {
   Layers, 
   AlertCircle,
   HelpCircle,
-  RotateCw
+  RotateCw,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 import { generateDiplomaticSpeech, getOfflineFallbackSpeech } from '../services/aiService';
 import { speechService } from '../services/speechSynthesis';
@@ -54,7 +56,8 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
   const [indonesianIdea, setIndonesianIdea] = useState<string>('');
   const [subtopic, setSubtopic] = useState<string>('Pendidikan & Reintegrasi Korban');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'english' | 'caraBaca' | 'indoMeaning' | 'all'>('english');
+  const [activeTab, setActiveTab] = useState<'english' | 'caraBaca' | 'indoMeaning' | 'all'>('caraBaca');
+  const [isPodiumFocus, setIsPodiumFocus] = useState<boolean>(false);
   const [speechData, setSpeechData] = useState<SpeechData>(() => getOfflineFallbackSpeech({ mode: 'GSL', durationSeconds: 90 }));
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
@@ -177,15 +180,41 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
           </p>
         </div>
 
-        <div className="shrink-0 flex items-center gap-2 text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-          <Clock className="w-4 h-4 text-amber-600" />
-          <span>Waktu Bicara: <strong className="text-slate-900">{selectedMode.duration} detik</strong></span>
+        <div className="shrink-0 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsPodiumFocus(!isPodiumFocus)}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition border ${
+              isPodiumFocus
+                ? 'bg-amber-100 text-amber-900 border-amber-300 shadow-sm'
+                : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200 shadow-sm'
+            }`}
+            title={isPodiumFocus ? "Tampilkan kembali form input ide" : "Mode fokus penuh tanpa distraksi untuk membaca di podium"}
+          >
+            {isPodiumFocus ? (
+              <>
+                <Minimize2 className="w-3.5 h-3.5 text-amber-700" />
+                <span>Tampilkan Form Input</span>
+              </>
+            ) : (
+              <>
+                <Maximize2 className="w-3.5 h-3.5 text-amber-700" />
+                <span>Mode Fokus Podium 🎙️</span>
+              </>
+            )}
+          </button>
+
+          <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-600 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
+            <Clock className="w-4 h-4 text-amber-600" />
+            <span>Waktu: <strong className="text-slate-900">{selectedMode.duration}s</strong></span>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className={isPodiumFocus ? "w-full max-w-4xl mx-auto space-y-4" : "grid grid-cols-1 lg:grid-cols-12 gap-6"}>
         {/* Left Column: Input Form (5 cols) */}
-        <div className="lg:col-span-5 space-y-4">
+        {!isPodiumFocus && (
+          <div className="lg:col-span-5 space-y-4">
           <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
             {/* Mode selection */}
             <div>
@@ -302,9 +331,10 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
             </button>
           </div>
         </div>
+        )}
 
-        {/* Right Column: Teleprompter Output (7 cols) */}
-        <div className="lg:col-span-7 space-y-4">
+        {/* Right Column: Teleprompter Output */}
+        <div className={isPodiumFocus ? "w-full space-y-4" : "lg:col-span-7 space-y-4"}>
           {/* Top Bar with Timer */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
             {/* Countdown timer */}
@@ -440,7 +470,9 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
                     <span className="font-bold uppercase tracking-wide">Panduan Lafal Bahasa Indonesia (Baca Saja Ini di Podium!)</span>
                     <span>Suku kata ejaan santai</span>
                   </div>
-                  <div className="font-mono text-base sm:text-xl text-slate-900 leading-loose whitespace-pre-line font-medium bg-amber-50/70 p-5 rounded-xl border border-amber-200">
+                  <div className={`font-mono text-slate-900 leading-loose whitespace-pre-line font-medium bg-amber-50/70 p-5 sm:p-6 rounded-xl border border-amber-200 ${
+                    isPodiumFocus ? 'text-xl sm:text-3xl' : 'text-base sm:text-xl'
+                  }`}>
                     {speechData.caraBaca}
                   </div>
                 </div>

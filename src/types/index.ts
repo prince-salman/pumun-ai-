@@ -160,3 +160,12 @@ export interface CrisisScenario {
   responseIndo: string;
 }
 
+export interface SpeechAnalysisResult {
+  countryName: string;
+  summaryIndo: string;
+  kenyaImpact: 'Menguntungkan' | 'Netral' | 'Mengancam / Perlu Direspon';
+  kenyaStrategy: string;
+  counterSpeech: SpeechData;
+}
+
+

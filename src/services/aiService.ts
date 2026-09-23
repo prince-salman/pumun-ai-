@@ -1,4 +1,5 @@
-import { ModelOption, SpeechData } from '../types';
+import { ModelOption, SpeechData, SpeechAnalysisResult } from '../types';
+
 
 export const AVAILABLE_MODELS: ModelOption[] = [
   { id: 'nemotron-3-ultra', name: 'Nemotron 3 Ultra (Sangat Cerdas & Rapi - Rekomendasi)', speed: 'Normal', intelligence: 'Tertinggi' },
@@ -186,3 +187,175 @@ Tolong buatkan pidato diplomasi resmi untuk saya sekarang.`;
     return getOfflineFallbackSpeech({ mode, durationSeconds, subtopic });
   }
 }
+
+export function getOfflineAnalysisFallback(countryName: string, rawSpeechOrIdea: string): SpeechAnalysisResult {
+  const c = countryName.toLowerCase();
+  const text = rawSpeechOrIdea.toLowerCase();
+
+  if (c.includes('united states') || c.includes('america') || text.includes('digital') || text.includes('siber')) {
+    return {
+      countryName,
+      summaryIndo: `${countryName} menekankan pengetatan keamanan siber, akuntabilitas audit anggaran ketat, dan pelibatan platform teknologi raksasa, tetapi enggan menyetujui pendanaan tunai tanpa prasyarat.`,
+      kenyaImpact: 'Mengancam / Perlu Direspon',
+      kenyaStrategy: 'Jangan tolak teknologi mereka, tetapi ingatkan bahwa anak penyintas di garis depan perbatasan membutuhkan tempat penampungan aman, konseling trauma, dan sekolah fisik terlebih dahulu sebelum regulasi siber.',
+      counterSpeech: {
+        english: 'Honorable Chair, the Delegation of Kenya appreciates the focus on digital safety. However, Kenya reminds this committee that child survivors in transit corridors require immediate food, shelter, and trauma-informed basic schooling before they can benefit from cyber literacy. We urge donor states to fund holistic grassroots rehabilitation rather than conditional technological mandates. Kenya yields back.',
+        caraBaca: 'Onorebel Cyeer, dhe Deligeisyen of Kenya eprisyieits dhe fokes on dijitel seifti. Hawefer, Kenya rimainds dhis komiti dhet cyaild servaifers in trensit koridors rikwair imidyet fud, syelter, end troma-informd beysik skuling bifor dhei ken benefit from sayber literesi. Wi erj doner stets tu fand holistik gresruts rihebiliteisyen radher dhen kondisyenel teknolojikel mandets. Kenya yilds bek.',
+        indoMeaning: 'Pimpinan yang terhormat, Delegasi Kenya menghargai fokus pada keselamatan digital. Namun, Kenya mengingatkan komite ini bahwa anak-anak penyintas di koridor transit membutuhkan makanan, tempat aman, dan sekolah dasar peka-trauma terlebih dahulu sebelum mereka bisa memanfaatkan literasi siber. Kami mendesak negara donor mendanai pemulihan akar rumput yang menyeluruh ketimbang mandat teknologi bersyarat. Kenya kembalikan waktu.',
+        wordCount: 58,
+        estimatedSeconds: 30,
+        isFallback: true
+      }
+    };
+  }
+
+  if (c.includes('sweden') || c.includes('swedia') || c.includes('canada') || text.includes('dana') || text.includes('gender')) {
+    return {
+      countryName,
+      summaryIndo: `${countryName} mendukung penuh hak pemulihan anak, fokus pada kesetaraan gender korban pelecehan, dan bersedia mengalirkan bantuan dana multilateral melalui UNICEF.`,
+      kenyaImpact: 'Menguntungkan',
+      kenyaStrategy: 'Sekutu emas! Segera sambut baik pidato mereka di podium, dan ajak mereka mendanai inisiatif SAFE-LEARN Transit Pass yang dirintis oleh Kenya.',
+      counterSpeech: {
+        english: 'Distinguished Dais, Kenya wholeheartedly welcomes the progressive stance of the distinguished delegate. Cross-border child survivors desperately need unconditional multilateral funding that respects local dignity. Kenya warmly invites the delegate to join our coalition and co-sponsor our SAFE-LEARN framework to guarantee swift educational re-enrollment for all survivors. Kenya yields its time.',
+        caraBaca: 'Distingsy-d Dais, Kenya houlhertedli welkems dhe progresif stens of dhe distingsy-d deliget. Kros-border cyaild servaifers desperetli nid enkondisyenel maltileterel fanding dhet rispeks lokel digniti. Kenya wormli infaits dhe deliget tu joyn awer koalisyen end ko-sponsor awer SEIF-LERN freimwerk tu gerenti swift edyukeyisyenel ri-enrolment for ol servaifers. Kenya yilds its taim.',
+        indoMeaning: 'Pimpinan Sidang, Kenya menyambut hangat sikap progresif delegasi terhormat. Anak-anak korban lintas batas sangat membutuhkan pendanaan multilateral tanpa syarat yang menghormati martabat lokal. Kenya dengan hangat mengundang delegasi tersebut untuk bergabung dalam koalisi kami dan menjadi co-sponsor kerangka kerja SAFE-LEARN demi menjamin pendaftaran sekolah yang cepat bagi seluruh penyintas. Kenya kembalikan waktu.',
+        wordCount: 52,
+        estimatedSeconds: 28,
+        isFallback: true
+      }
+    };
+  }
+
+  // Default regional/General peer fallback
+  return {
+    countryName,
+    summaryIndo: `Delegasi ${countryName} membahas pentingnya koordinasi regional, pemulihan mental anak korban, serta mekanisme pendaftaran kembali ke sekolah.`,
+    kenyaImpact: 'Netral',
+    kenyaStrategy: 'Jaga hubungan diplomatik yang bersahabat. Tegaskan posisi Kenya di bawah Children Act 2022 bahwa anak korban tidak boleh dihambat oleh ketiadaan akta lahir.',
+    counterSpeech: {
+      english: `Honorable Chair, the Republic of Kenya notes the valuable points raised by the distinguished delegate of ${countryName}. Kenya underscores that real rehabilitation demands two immediate actions: removing birth certificate requirements for emergency school enrollment, and embedding trauma counselors in community shelters. Kenya stands ready to collaborate constructively. We yield our time.`,
+      caraBaca: `Onorebel Cyeer, dhe Repablik of Kenya nowts dhe felyuebel poins reisd bai dhe distingsy-d deliget of ${countryName}. Kenya enderskors dhet riel rihebiliteisyen dimends tu imidyet eksyens: rimufing berth sertifiket rikwairmens for imerjensi skul enrolmen, end embeding troma kawnselors in komyuniti syelters. Kenya stends redi tu koleboreit konstruktifli. Wi yild awer taim.`,
+      indoMeaning: `Pimpinan yang terhormat, Republik Kenya mencatat poin-poin berharga yang disampaikan oleh delegasi terhormat ${countryName}. Kenya menegaskan bahwa pemulihan nyata menuntut dua tindakan nyata: menghapus syarat akta lahir untuk pendaftaran sekolah darurat, dan menempatkan konselor trauma di tempat penampungan masyarakat. Kenya siap berkolaborasi secara konstruktif. Kami kembalikan waktu.`,
+      wordCount: 55,
+      estimatedSeconds: 30,
+      isFallback: true
+    }
+  };
+}
+
+export async function analyzeDelegateSpeech({
+  countryName,
+  rawSpeechOrIdea,
+  model = 'nemotron-3-ultra',
+  apiKey = 'sk-guts-83d0dcdcfcf1dc76ae8aaf946815626cbf04ebd3',
+  baseUrl = 'https://api.gutsai.id/v1'
+}: {
+  countryName: string;
+  rawSpeechOrIdea: string;
+  model?: string;
+  apiKey?: string;
+  baseUrl?: string;
+}): Promise<SpeechAnalysisResult> {
+  const systemPrompt = `You are the Chief Diplomatic Intelligence Advisor for the Republic of Kenya at PUMUN 2026 (UNICEF Committee).
+The delegate is Muhamad Salman, representing Kenya as a solo delegate.
+He does not speak English and needs to instantly understand what another delegate just said on the floor, and immediately have a counter-speech ready to speak at the podium.
+
+Analyze the given speech or debate points from ${countryName}:
+Output format in 4 strict sections with markdown headers:
+### 1. Rangkuman Inti
+(1-2 clear, simple Indonesian sentences summarizing what this country actually said/proposed.)
+
+### 2. Sikap Kenya
+(Explain in 1-2 Indonesian sentences: Is this beneficial or threatening to Kenya? What should Salman do?)
+
+### 3. Sanggahan Pidato Inggris
+(A crisp, 30-45 second official parliamentary speech directly addressing them. Address Dais properly: "Honorable Chair...". Yield back at the end.)
+
+### 4. Cara Baca Sanggahan
+(Full Indonesian phonetic pronunciation in bold, simple syllables so Salman can read it immediately out loud!)
+
+### 5. Makna Sanggahan
+(Simple Indonesian translation of the rebuttal.)`;
+
+  const userMessage = `Negara yang sedang bicara: ${countryName}
+Apa yang mereka katakan / kata kunci yang terdengar:
+"${rawSpeechOrIdea}"
+
+Tolong rangkumkan intinya, beri tahu taktik untuk Kenya, dan buatkan pidato balasan/sanggahan 30 detik sekarang.`;
+
+  try {
+    const response = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: model || 'nemotron-3-ultra',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    const rawContent = data?.choices?.[0]?.message?.content;
+    if (!rawContent) {
+      throw new Error('Empty response');
+    }
+
+    const summaryMatch = rawContent.match(/###\s*1\.\s*Rangkuman[^\n]*\n([\s\S]*?)(?=###\s*2\.\s*Sikap|$)/i);
+    const strategyMatch = rawContent.match(/###\s*2\.\s*Sikap[^\n]*\n([\s\S]*?)(?=###\s*3\.\s*Sanggahan Pidato Inggris|$)/i);
+    const engMatch = rawContent.match(/###\s*3\.\s*Sanggahan Pidato Inggris[^\n]*\n([\s\S]*?)(?=###\s*4\.\s*Cara Baca|$)/i);
+    const caraMatch = rawContent.match(/###\s*4\.\s*Cara Baca[^\n]*\n([\s\S]*?)(?=###\s*5\.\s*Makna|$)/i);
+    const indoMatch = rawContent.match(/###\s*5\.\s*Makna[^\n]*\n([\s\S]*?)$/i);
+
+    const summaryIndo = summaryMatch ? summaryMatch[1].trim() : `Delegasi ${countryName} menyampaikan poin terkait topik komite.`;
+    const kenyaStrategy = strategyMatch ? strategyMatch[1].trim() : 'Tegaskan posisi Kenya dan usulkan kerja sama konstruktif.';
+    const english = engMatch ? engMatch[1].trim() : '';
+    const caraBaca = caraMatch ? caraMatch[1].trim() : '';
+    const indoMeaning = indoMatch ? indoMatch[1].trim() : '';
+
+    if (!english || !caraBaca) {
+      return getOfflineAnalysisFallback(countryName, rawSpeechOrIdea);
+    }
+
+    const words = english.replace(/[#*_\-\n]/g, ' ').split(/\s+/).filter(Boolean);
+    const wordCount = words.length;
+    const estimatedSeconds = Math.round((wordCount / 130) * 60);
+
+    let kenyaImpact: 'Menguntungkan' | 'Netral' | 'Mengancam / Perlu Direspon' = 'Netral';
+    const lowerStrategy = kenyaStrategy.toLowerCase();
+    if (lowerStrategy.includes('kawan') || lowerStrategy.includes('untung') || lowerStrategy.includes('sekutu') || lowerStrategy.includes('dukung')) {
+      kenyaImpact = 'Menguntungkan';
+    } else if (lowerStrategy.includes('ancam') || lowerStrategy.includes('lawan') || lowerStrategy.includes('tolak') || lowerStrategy.includes('bahaya') || lowerStrategy.includes('hati-hati')) {
+      kenyaImpact = 'Mengancam / Perlu Direspon';
+    }
+
+    return {
+      countryName,
+      summaryIndo,
+      kenyaImpact,
+      kenyaStrategy,
+      counterSpeech: {
+        english,
+        caraBaca,
+        indoMeaning,
+        wordCount,
+        estimatedSeconds,
+        isFallback: false
+      }
+    };
+  } catch (err) {
+    console.warn('AI analysis failed, using fallback:', err);
+    return getOfflineAnalysisFallback(countryName, rawSpeechOrIdea);
+  }
+}
+

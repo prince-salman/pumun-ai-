@@ -362,7 +362,7 @@ export default function DebateRadar({ settings }: DebateRadarProps) {
                   </div>
                 </div>
 
-                <div className="bg-slate-900 p-3 rounded-lg text-xs font-mono text-emerald-300">
+                <div className="bg-slate-100 p-3 rounded-lg text-xs font-mono text-slate-800 border border-slate-200">
                   {selectedSubtopic.motionText}
                 </div>
 
