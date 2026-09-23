@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import SpeechTeleprompter from './components/SpeechTeleprompter';
+import DebateRadar from './components/DebateRadar';
 import QuickCheatSheet from './components/QuickCheatSheet';
 import PositionPaperStudio from './components/PositionPaperStudio';
 import CountryIntelligence from './components/CountryIntelligence';
@@ -28,6 +29,7 @@ export default function App() {
       {/* Main Workstation Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
         {activeTab === 'teleprompter' && <SpeechTeleprompter settings={settings} />}
+        {activeTab === 'radar' && <DebateRadar settings={settings} />}
         {activeTab === 'cheatsheet' && <QuickCheatSheet settings={settings} />}
         {activeTab === 'pospap' && <PositionPaperStudio settings={settings} />}
         {activeTab === 'countries' && <CountryIntelligence settings={settings} />}

@@ -14,6 +14,11 @@ describe('App Integration Test', () => {
   it('switches navigation tabs seamlessly', () => {
     render(<App />);
     
+    // Switch to Radar Subtopik
+    const radarTab = screen.getByRole('button', { name: /Radar Subtopik & Respon/i });
+    fireEvent.click(radarTab);
+    expect(screen.getByText(/Radar Subtopik & Respon Cepat Debat/i)).toBeInTheDocument();
+
     // Switch to Quick Cheat Sheet
     const cheatTab = screen.getByRole('button', { name: /Quick Cheat Sheet/i });
     fireEvent.click(cheatTab);

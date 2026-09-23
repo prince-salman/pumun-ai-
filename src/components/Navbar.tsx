@@ -1,6 +1,7 @@
 import React from 'react';
 import { 
   Mic, 
+  Radar,
   Zap, 
   FileText, 
   Globe, 
@@ -31,6 +32,7 @@ export default function Navbar({ activeTab, setActiveTab, settings, updateSettin
 
   const navItems = [
     { id: 'teleprompter', label: 'Live Teleprompter', icon: Mic, badge: '3-Lapis' },
+    { id: 'radar', label: 'Radar Subtopik & Respon', icon: Radar, badge: 'Prediksi' },
     { id: 'cheatsheet', label: 'Quick Cheat Sheet', icon: Zap, badge: 'Darurat' },
     { id: 'pospap', label: 'Position Paper', icon: FileText, badge: 'A4' },
     { id: 'countries', label: '22 Negara Intel', icon: Globe, badge: '22' },

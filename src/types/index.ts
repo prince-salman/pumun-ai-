@@ -128,3 +128,35 @@ export interface SettingsState {
   isSolo: boolean;
   theme: 'dark' | 'light';
 }
+
+export interface DebateSubtopic {
+  id: string;
+  title: string;
+  englishTitle: string;
+  likelihood: 'Sangat Tinggi' | 'Tinggi' | 'Sedang';
+  descriptionIndo: string;
+  whatOthersSay: string;
+  kenyaStance: string;
+  motionText: string;
+  motionCaraBaca: string;
+  readySpeech: SpeechData;
+}
+
+export interface KeywordItem {
+  id: string;
+  englishWord: string;
+  caraBaca: string;
+  indoMeaning: string;
+  contextInDebate: string;
+  kenyaAction: string;
+}
+
+export interface CrisisScenario {
+  id: string;
+  triggerPhrase: string;
+  situationIndo: string;
+  responseEnglish: string;
+  responseCaraBaca: string;
+  responseIndo: string;
+}
+
