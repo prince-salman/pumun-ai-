@@ -108,6 +108,10 @@ export default function CoDelegateChat({ settings, onNavigate }: CoDelegateChatP
 
   useEffect(() => {
     scrollToBottom();
+    const timer = setTimeout(() => {
+      scrollToBottom();
+    }, 60);
+    return () => clearTimeout(timer);
   }, [messages, isLoading]);
 
   // Persist messages

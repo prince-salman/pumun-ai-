@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Headphones, 
   Sparkles, 
@@ -11,7 +11,7 @@ import {
   ShieldCheck, 
   RotateCw, 
   BookOpen, 
-  ArrowRight,
+  ArrowRight, 
   HelpCircle,
   Clock
 } from 'lucide-react';
@@ -44,6 +44,9 @@ export default function DebateListener({ settings }: DebateListenerProps) {
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [lastAnalyzedTime, setLastAnalyzedTime] = useState<string | null>(null);
+
+  // Auto-scroll ref
+  const resultRef = useRef<HTMLDivElement>(null);
 
   // Voice recording state
   const [isListeningMic, setIsListeningMic] = useState<boolean>(false);
@@ -105,6 +108,11 @@ export default function DebateListener({ settings }: DebateListenerProps) {
     } finally {
       setIsLoading(false);
       setLastAnalyzedTime(new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      setTimeout(() => {
+        if (typeof resultRef.current?.scrollIntoView === 'function') {
+          resultRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
     }
   };
 
@@ -254,11 +262,17 @@ export default function DebateListener({ settings }: DebateListenerProps) {
             </>
           )}
         </button>
+
+        {/* Visual Cue */}
+        <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 pt-1">
+          <span className="text-emerald-600 font-bold">👇 Hasil Analisis & Naskah Pidato</span>
+          <span>akan otomatis muncul dan ter-scroll ke bawah ini</span>
+        </div>
       </div>
 
       {/* OUTPUT SECTION: 3 Crystal-Clear Cards */}
       {analysisResult && (
-        <div className="space-y-4 animate-in fade-in duration-300">
+        <div ref={resultRef} className="space-y-4 animate-in fade-in duration-300 scroll-mt-24">
           {/* Status feedback bar */}
           <div className="flex items-center justify-between text-xs px-4 py-2.5 rounded-xl border bg-emerald-50 text-emerald-900 border-emerald-200 shadow-sm">
             <span className="font-bold flex items-center gap-2">

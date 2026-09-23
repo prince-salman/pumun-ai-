@@ -111,6 +111,8 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
     }
   };
 
+  const teleprompterRef = useRef<HTMLDivElement>(null);
+
   const handleGenerate = async () => {
     const ideaToUse = indonesianIdea.trim() || QUICK_TOPICS[0].prompt;
     if (!indonesianIdea.trim()) {
@@ -137,6 +139,11 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
       setSpeechData(getOfflineFallbackSpeech({ mode: selectedMode.id, durationSeconds: selectedMode.duration }));
     } finally {
       setIsLoading(false);
+      setTimeout(() => {
+        if (typeof teleprompterRef.current?.scrollIntoView === 'function') {
+          teleprompterRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
     }
   };
 
@@ -329,12 +336,18 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
                 </>
               )}
             </button>
+
+            {/* Visual Cue */}
+            <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 pt-1">
+              <span className="text-emerald-600 font-bold">👉 Hasil Naskah Pidato</span>
+              <span>muncul di kolom papan baca teleprompter (sebelah kanan / bawah)</span>
+            </div>
           </div>
         </div>
         )}
 
         {/* Right Column: Teleprompter Output */}
-        <div className={isPodiumFocus ? "w-full space-y-4" : "lg:col-span-7 space-y-4"}>
+        <div ref={teleprompterRef} className={isPodiumFocus ? "w-full space-y-4 scroll-mt-24" : "lg:col-span-7 space-y-4 scroll-mt-24"}>
           {/* Top Bar with Timer */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
             {/* Countdown timer */}
