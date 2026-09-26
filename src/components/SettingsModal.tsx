@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Key, Globe, Cpu, Volume2, RotateCcw } from 'lucide-react';
+import { X, Key, Globe, Cpu, Volume2, RotateCcw, Sparkles } from 'lucide-react';
 import { AVAILABLE_MODELS } from '../services/aiService';
 import { speechService } from '../services/speechSynthesis';
 import { SettingsState } from '../types';
@@ -91,6 +91,40 @@ export default function SettingsModal({ settings, updateSetting, resetSettings, 
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Default AI Mode */}
+          <div className="space-y-1.5">
+            <label className="font-bold text-slate-700 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              Mode AI Standar:
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => updateSetting('aiMode', 'online')}
+                className={`p-2.5 rounded-xl border text-xs font-bold text-left transition ${
+                  (settings.aiMode || 'online') === 'online'
+                    ? 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-xs'
+                    : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <div>🌐 Online AI</div>
+                <div className="text-[10px] font-normal text-slate-500">Cloud AI respons dinamis</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => updateSetting('aiMode', 'paper')}
+                className={`p-2.5 rounded-xl border text-xs font-bold text-left transition ${
+                  settings.aiMode === 'paper'
+                    ? 'bg-amber-50 border-amber-500 text-amber-950 shadow-xs'
+                    : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <div>📄 Base on Paper</div>
+                <div className="text-[10px] font-normal text-slate-500">Terkunci ke Position Paper</div>
+              </button>
+            </div>
           </div>
 
           {/* Speech Rate Slider */}

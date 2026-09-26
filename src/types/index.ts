@@ -109,6 +109,7 @@ export interface SpeechData {
   estimatedSeconds?: number;
   isFallback?: boolean;
   modelUsed?: string;
+  sourceMode?: 'online' | 'paper';
 }
 
 export interface ModelOption {
@@ -127,6 +128,7 @@ export interface SettingsState {
   partnerName: string;
   isSolo: boolean;
   theme: 'dark' | 'light';
+  aiMode?: 'online' | 'paper';
 }
 
 export interface DebateSubtopic {

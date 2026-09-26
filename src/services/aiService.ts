@@ -1,5 +1,7 @@
 import { ModelOption, SpeechData, SpeechAnalysisResult } from '../types';
+import { getPaperBasedSpeech, getPaperCoDelegateReply, PAPER_PILLARS } from '../data/paperKnowledge';
 
+export { getPaperBasedSpeech, getPaperCoDelegateReply, PAPER_PILLARS };
 
 export function getEffectiveBaseUrl(baseUrl?: string): string {
   const url = baseUrl || 'https://api.gutsai.id/v1';
@@ -112,7 +114,9 @@ export async function generateDiplomaticSpeech({
   subtopic = 'General Debate',
   model = 'nemotron-3-ultra',
   apiKey = 'sk-guts-83d0dcdcfcf1dc76ae8aaf946815626cbf04ebd3',
-  baseUrl = 'https://api.gutsai.id/v1'
+  baseUrl = 'https://api.gutsai.id/v1',
+  aiMode = 'online',
+  paperPillarId = 'all'
 }: {
   indonesianIdea: string;
   mode?: string;
@@ -121,7 +125,18 @@ export async function generateDiplomaticSpeech({
   model?: string;
   apiKey?: string;
   baseUrl?: string;
+  aiMode?: 'online' | 'paper';
+  paperPillarId?: string;
 }): Promise<SpeechData> {
+  // If Mode is Base on Paper, return official verified Position Paper speech instantly with 0% hallucination
+  if (aiMode === 'paper') {
+    const paperSpeech = getPaperBasedSpeech({ pillarId: paperPillarId, mode, durationSeconds });
+    return {
+      ...paperSpeech,
+      sourceMode: 'paper'
+    };
+  }
+
   const targetWordCount = Math.round((durationSeconds / 60) * 125);
 
   const systemPrompt = `You are the Virtual Co-Delegate and Speechwriter for the Republic of Kenya at PUMUN Regeneration 2026 (UNICEF Committee).
@@ -129,12 +144,13 @@ Delegate Names: Muhamad Salman & Jamael Nadeem Omero Setianegara (Dual Delegatio
 Committee Agenda: Strengthening educational opportunities and long-term prospects for child survivors of sexual exploitation and trafficking.
 Difficulty: Intermediate.
 
-Kenya's National Policy Reference:
-- Children Act 2022 (compulsory free education, Child Protection Units).
-- Counter-Trafficking in Persons Act 2010 (National Assistance Trust Fund).
-- Competency-Based Curriculum (CBC) offering accelerated alternative learning.
-- East African Community (EAC) cross-border coordination.
-- UNICEF Mandate Boundaries: Support governments, educational programs, capacity building, technical aid. DO NOT advocate for arrest/prosecution of criminals, imposing national legislation, or determining criminal penalties.
+Kenya's Official Position Paper Solutions (The HARAMBEE-WAYS Framework):
+- Action 1 (RE-FIN Compact): Multilateral Reintegration Financing Compact pooling debt-for-education swaps & AfDB grants via UNICEF Global Education Thematic Fund for border shelters in Busia, Garissa, and Namanga.
+- Action 2 (LOC-ID Fast-Track): 72-hour Transit Education Pass guaranteeing immediate classroom enrollment without birth certificate barriers, backed by Section 8(1) and Section 22 of Children Act 2022.
+- Action 3 (TEACH-SHIELD Program): Training 5,000 frontline educators with Teachers Service Commission (TSC) and UNICEF Innocenti in trauma-sensitive pedagogy and quiet counseling hubs to cut dropouts by 40%.
+- Action 4 (In-Tech Pathway): Deploying solar-powered radios and printed workbooks for off-grid border areas, plus East African Community (EAC) student credit tracking with Uganda and Tanzania.
+- Official Verified Evidence: UNODC 2024 (61% Sub-Saharan Africa trafficking victims are children), UNESCO 2024 (251M out of school globally, 98M Sub-Saharan Africa), ECPAT/INTERPOL/UNICEF Innocenti 2022 (12% internet-using children exploited, 67% no safety education), Terre des Hommes 2022 (2,426 children in Mombasa, Kilifi, Kwale).
+- UNICEF Mandate Boundaries: Support governments, educational programs, capacity building, technical aid. DO NOT advocate for arrest/prosecution of criminals, imposing national criminal legislation, or determining criminal penalties.
 
 The user is Muhamad Salman, who speaks Indonesian and has very limited English fluency.
 You must transform Salman's input into an eloquent, highly persuasive diplomatic speech adhering strictly to parliamentary decorum.
@@ -461,13 +477,15 @@ export async function chatWithCoDelegate({
   userMessage,
   model = 'nemotron-3-ultra',
   apiKey = 'sk-guts-83d0dcdcfcf1dc76ae8aaf946815626cbf04ebd3',
-  baseUrl = 'https://api.gutsai.id/v1'
+  baseUrl = 'https://api.gutsai.id/v1',
+  aiMode = 'online'
 }: {
   history: { role: 'user' | 'assistant'; content: string }[];
   userMessage: string;
   model?: string;
   apiKey?: string;
   baseUrl?: string;
+  aiMode?: 'online' | 'paper';
 }): Promise<{
   reply: string;
   speechCard?: {
@@ -480,22 +498,32 @@ export async function chatWithCoDelegate({
     tabId: string;
   };
 }> {
+  // If in Base on Paper mode, reply strictly from the verified Position Paper knowledge
+  if (aiMode === 'paper') {
+    return getPaperCoDelegateReply(userMessage);
+  }
+
   const systemPrompt = `Kamu adalah Nata, Virtual Co-Delegate dari Republik Kenya di komite UNICEF pada simulasi sidang PBB (PUMUN Regeneration 2026 - SDC 1.0).
 Rekan delegasimu adalah Muhamad Salman (seorang solo delegate pemula).
 Salman SAMA SEKALI TIDAK BISA BAHASA INGGRIS (0 Inggris) dan belum mengerti alur sidang ataupun cara menggunakan fitur-fitur teknis.
 Tugas utamamu adalah mendampingi Salman secara personal:
 1. Bersikaplah seperti rekan tim yang hangat, tenang, solutif, dan suportif ("Tenang Salman, aku temani kamu. Biar aku yang atur taktiknya").
 2. Jawab pertanyaan Salman dalam Bahasa Indonesia sehari-hari yang mudah dipahami. Jangan pakai istilah rumit tanpa menjelaskannya.
-3. ATURAN PENULISAN (SANGAT PENTING - DIWAJIBKAN):
+3. Seluruh argumen delegasi wajib berpedoman pada Position Paper resmi Kenya (HARAMBEE-WAYS Framework):
+   - Aksi 1: RE-FIN Compact (debt swaps & hibah AfDB via UNICEF Global Education Fund untuk shelter Busia, Garissa, Namanga).
+   - Aksi 2: LOC-ID Fast-Track (Kartu Pelajar Transit 72 jam tanpa syarat akta lahir sesuai Children Act 2022).
+   - Aksi 3: TEACH-SHIELD (Latih 5.000 guru bersama TSC & UNICEF Innocenti untuk pedagogi peka-trauma).
+   - Aksi 4: In-Tech Pathway (Radio tenaga surya, modul cetak, & tracking siswa EAC dengan Uganda & Tanzania).
+4. ATURAN PENULISAN (SANGAT PENTING - DIWAJIBKAN):
    - JANGAN PERNAH gunakan emoji apapun.
    - JANGAN gunakan tanda bintang ganda (**) untuk bold atau huruf miring (*). Tulis kata biasa tanpa tanda bintang.
    - JANGAN gunakan simbol pagar (#), backtick (\`), atau simbol aneh lainnya.
    - Ketikan WAJIB rapi, bersih, berparagraf teratur seperti tulisan manusia profesional.
-4. Jika Salman butuh berbicara (misal di podium, saat roll call, sanggahan, atau interupsi):
+5. Jika Salman butuh berbicara (misal di podium, saat roll call, sanggahan, atau interupsi):
    - Tuliskan naskah resmi Bahasa Inggris.
    - WAJIB berikan "Cara Baca" dalam ejaan fonetik suku kata Bahasa Indonesia santai (contoh: "O-nor-e-bel Cyeer, Ken-ya yilds its taim...").
    - Jelaskan artinya dalam 1 kalimat.
-5. Format naskah siap baca jika ada (letakkan di baris paling bawah jawaban):
+6. Format naskah siap baca jika ada (letakkan di baris paling bawah jawaban):
    ### Naskah Siap Baca
    Inggris: [Kalimat Inggris resmi]
    Cara Baca: [Lafal suku kata Indonesia]

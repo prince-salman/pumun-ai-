@@ -17,6 +17,7 @@ import {
   Minimize2
 } from 'lucide-react';
 import { generateDiplomaticSpeech, getOfflineFallbackSpeech } from '../services/aiService';
+import { getPaperBasedSpeech, PAPER_PILLARS } from '../data/paperKnowledge';
 import { speechService } from '../services/speechSynthesis';
 import CountdownTimer from './CountdownTimer';
 import { SettingsState, SpeechMode, SpeechData } from '../types';
@@ -52,6 +53,8 @@ const QUICK_TOPICS = [
 ];
 
 export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps) {
+  const [aiMode, setAiMode] = useState<'online' | 'paper'>(settings.aiMode || 'online');
+  const [selectedPaperPillar, setSelectedPaperPillar] = useState<string>('all');
   const [selectedMode, setSelectedMode] = useState<SpeechMode>(SPEECH_MODES[0]);
   const [indonesianIdea, setIndonesianIdea] = useState<string>('');
   const [subtopic, setSubtopic] = useState<string>('Pendidikan & Reintegrasi Korban');
@@ -207,14 +210,33 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
   const teleprompterRef = useRef<HTMLDivElement>(null);
 
   const handleGenerate = async () => {
+    speechService.stop();
+    setIsPlayingAudio(false);
+
+    if (aiMode === 'paper') {
+      const paperSpeech = getPaperBasedSpeech({
+        pillarId: selectedPaperPillar,
+        mode: selectedMode.id,
+        durationSeconds: selectedMode.duration
+      });
+      setSpeechData({
+        ...paperSpeech,
+        sourceMode: 'paper'
+      });
+      setTimeout(() => {
+        if (typeof teleprompterRef.current?.scrollIntoView === 'function') {
+          teleprompterRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+      return;
+    }
+
     const ideaToUse = indonesianIdea.trim() || QUICK_TOPICS[0].prompt;
     if (!indonesianIdea.trim()) {
       setIndonesianIdea(QUICK_TOPICS[0].prompt);
     }
     
     setIsLoading(true);
-    speechService.stop();
-    setIsPlayingAudio(false);
 
     try {
       const result = await generateDiplomaticSpeech({
@@ -224,9 +246,14 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
         subtopic,
         model: settings.selectedModel,
         apiKey: settings.apiKey,
-        baseUrl: settings.baseUrl
+        baseUrl: settings.baseUrl,
+        aiMode: 'online',
+        paperPillarId: selectedPaperPillar
       });
-      setSpeechData(result);
+      setSpeechData({
+        ...result,
+        sourceMode: 'online'
+      });
     } catch (e) {
       console.error(e);
       setSpeechData(getOfflineFallbackSpeech({ mode: selectedMode.id, durationSeconds: selectedMode.duration }));
@@ -316,6 +343,95 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
         {!isPodiumFocus && (
           <div className="lg:col-span-5 space-y-4">
           <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
+            {/* AI Mode Selector Toggle */}
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                    Mode AI Pidato
+                  </span>
+                  <span className="text-[11px] text-slate-500 block">
+                    {aiMode === 'online' ? 'Online AI: Dari ide bebas Anda via Cloud' : 'Base on Paper: Terkunci 100% pada Position Paper Kenya (0% Halusinasi)'}
+                  </span>
+                </div>
+                <div className="flex items-center rounded-lg bg-slate-200/80 p-0.5 border border-slate-300 text-xs font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setAiMode('online')}
+                    className={`px-3 py-1 rounded-md transition ${
+                      aiMode === 'online'
+                        ? 'bg-emerald-700 text-white shadow-xs font-black'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Online AI
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAiMode('paper');
+                      const speech = getPaperBasedSpeech({
+                        pillarId: selectedPaperPillar,
+                        mode: selectedMode.id,
+                        durationSeconds: selectedMode.duration
+                      });
+                      setSpeechData({ ...speech, sourceMode: 'paper' });
+                    }}
+                    className={`px-3 py-1 rounded-md transition ${
+                      aiMode === 'paper'
+                        ? 'bg-amber-700 text-white shadow-xs font-black'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Base on Paper
+                  </button>
+                </div>
+              </div>
+
+              {aiMode === 'paper' && (
+                <div className="pt-2 border-t border-slate-200 space-y-2">
+                  <span className="text-[11px] font-bold text-amber-900 uppercase tracking-wide block">
+                    Pilih Pilar Aksi Position Paper (HARAMBEE-WAYS):
+                  </span>
+                  <div className="grid grid-cols-1 gap-1.5">
+                    {Object.values(PAPER_PILLARS).map((pillar) => (
+                      <button
+                        key={pillar.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedPaperPillar(pillar.id);
+                          const speech = getPaperBasedSpeech({
+                            pillarId: pillar.id,
+                            mode: selectedMode.id,
+                            durationSeconds: selectedMode.duration
+                          });
+                          setSpeechData({ ...speech, sourceMode: 'paper' });
+                        }}
+                        className={`px-3 py-2 rounded-lg text-left text-xs transition border flex items-center justify-between ${
+                          selectedPaperPillar === pillar.id
+                            ? 'bg-amber-100 border-amber-400 text-amber-950 font-bold shadow-xs'
+                            : 'bg-white border-slate-200 text-slate-700 hover:bg-amber-50/50'
+                        }`}
+                      >
+                        <div>
+                          <div className="font-bold">{pillar.shortLabel}</div>
+                          <div className="text-[10px] text-slate-500 font-normal">{pillar.name}</div>
+                        </div>
+                        {selectedPaperPillar === pillar.id && (
+                          <span className="text-amber-800 text-[10px] font-black uppercase bg-amber-200/80 px-1.5 py-0.5 rounded">
+                            Aktif
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-amber-800 leading-relaxed bg-amber-50 p-2 rounded-lg border border-amber-200">
+                    Naskah bersumber 100% dari Position Paper resmi Kenya (SDC 1.0) dengan data UNODC 2024, UNESCO 2024, dan Children Act 2022. Bebas halusinasi dan dapat dipakai offline.
+                  </p>
+                </div>
+              )}
+            </div>
+
             {/* Mode selection */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
@@ -326,7 +442,17 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
                   <button
                     key={mode.id}
                     type="button"
-                    onClick={() => setSelectedMode(mode)}
+                    onClick={() => {
+                      setSelectedMode(mode);
+                      if (aiMode === 'paper') {
+                        const paperSpeech = getPaperBasedSpeech({
+                          pillarId: selectedPaperPillar,
+                          mode: mode.id,
+                          durationSeconds: mode.duration
+                        });
+                        setSpeechData({ ...paperSpeech, sourceMode: 'paper' });
+                      }
+                    }}
                     className={`p-2.5 rounded-xl text-left border transition text-xs flex flex-col justify-between ${
                       selectedMode.id === mode.id
                         ? 'bg-emerald-50 border-emerald-500 text-emerald-950 font-bold shadow-sm'
@@ -340,129 +466,142 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
               </div>
             </div>
 
-            {/* Subtopic input */}
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                2. Sub-Isu / Topik Debat
-              </label>
-              <input
-                type="text"
-                value={subtopic}
-                onChange={(e) => setSubtopic(e.target.value)}
-                placeholder="Contoh: Akses Sekolah Tanpa Akta, Pemulihan Trauma..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-600 transition"
-              />
-            </div>
-
-            {/* Quick Topic Chips */}
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                Inspirasi Poin Cepat (Klik untuk Pasang)
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {QUICK_TOPICS.map((topic, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setIndonesianIdea(topic.prompt)}
-                    className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-200 transition text-left"
-                  >
-                    💡 {topic.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Indonesian input textarea with Voice Recognition Mic */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  3. Ide / Pesan Anda (Bahasa Indonesia)
-                </label>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center rounded-lg bg-slate-200/80 p-0.5 border border-slate-300 text-[11px] font-bold">
-                    <button
-                      type="button"
-                      onClick={() => setMicLang('id-ID')}
-                      disabled={isListening}
-                      className={`px-2 py-0.5 rounded-md transition ${
-                        micLang === 'id-ID'
-                          ? 'bg-emerald-700 text-white shadow-xs font-black'
-                          : 'text-slate-600 hover:text-slate-900'
-                      }`}
-                      title="Bahasa Suara: Bahasa Indonesia"
-                    >
-                      ID
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setMicLang('en-US')}
-                      disabled={isListening}
-                      className={`px-2 py-0.5 rounded-md transition ${
-                        micLang === 'en-US'
-                          ? 'bg-blue-700 text-white shadow-xs font-black'
-                          : 'text-slate-600 hover:text-slate-900'
-                      }`}
-                      title="Bahasa Suara: English"
-                    >
-                      EN
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={toggleListening}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
-                      isListening
-                        ? 'bg-rose-600 text-white border border-rose-700 animate-pulse shadow-sm'
-                        : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
-                    }`}
-                    title={isListening ? "Klik untuk menghentikan rekaman" : "Klik untuk bicara via mic (rekam tanpa batas waktu)"}
-                  >
-                    {isListening ? (
-                      <>
-                        <span className="w-2 h-2 rounded-full bg-white animate-ping" />
-                        <MicOff className="w-3.5 h-3.5 text-white" />
-                        <span>
-                          Merekam {Math.floor(recordingSeconds / 60)}:{(recordingSeconds % 60) < 10 ? '0' : ''}{recordingSeconds % 60} (Selesai)
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <Mic className="w-3.5 h-3.5 text-emerald-700" />
-                        <span>Bicara via Mic (Bisa Lama)</span>
-                      </>
-                    )}
-                  </button>
+            {aiMode === 'online' && (
+              <>
+                {/* Subtopic input */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                    2. Sub-Isu / Topik Debat
+                  </label>
+                  <input
+                    type="text"
+                    value={subtopic}
+                    onChange={(e) => setSubtopic(e.target.value)}
+                    placeholder="Contoh: Akses Sekolah Tanpa Akta, Pemulihan Trauma..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-600 transition"
+                  />
                 </div>
-              </div>
-              <textarea
-                rows={4}
-                value={indonesianIdea}
-                onChange={(e) => {
-                  setIndonesianIdea(e.target.value);
-                  baseIdeaRef.current = e.target.value;
-                  sessionFinalTextRef.current = '';
-                }}
-                placeholder={
-                  micLang === 'id-ID'
-                    ? "Tulis atau klik 'Bicara via Mic' untuk ngomong langsung dalam Bahasa Indonesia... (Contoh: Saya mau usul bantuan dana negara maju untuk bangun shelter di perbatasan)"
-                    : "Type or click 'Bicara via Mic' to speak directly in English... (Example: Kenya calls for debt-for-education swaps to finance border shelters)"
-                }
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-600 transition resize-none"
-              />
-            </div>
+
+                {/* Quick Topic Chips */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                    Inspirasi Poin Cepat (Klik untuk Pasang)
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {QUICK_TOPICS.map((topic, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setIndonesianIdea(topic.prompt)}
+                        className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-200 transition text-left"
+                      >
+                        💡 {topic.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Indonesian input textarea with Voice Recognition Mic */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                      3. Ide / Pesan Anda (Bahasa Indonesia)
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center rounded-lg bg-slate-200/80 p-0.5 border border-slate-300 text-[11px] font-bold">
+                        <button
+                          type="button"
+                          onClick={() => setMicLang('id-ID')}
+                          disabled={isListening}
+                          className={`px-2 py-0.5 rounded-md transition ${
+                            micLang === 'id-ID'
+                              ? 'bg-emerald-700 text-white shadow-xs font-black'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                          title="Bahasa Suara: Bahasa Indonesia"
+                        >
+                          ID
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setMicLang('en-US')}
+                          disabled={isListening}
+                          className={`px-2 py-0.5 rounded-md transition ${
+                            micLang === 'en-US'
+                              ? 'bg-blue-700 text-white shadow-xs font-black'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                          title="Bahasa Suara: English"
+                        >
+                          EN
+                        </button>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={toggleListening}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
+                          isListening
+                            ? 'bg-rose-600 text-white border border-rose-700 animate-pulse shadow-sm'
+                            : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
+                        }`}
+                        title={isListening ? "Klik untuk menghentikan rekaman" : "Klik untuk bicara via mic (rekam tanpa batas waktu)"}
+                      >
+                        {isListening ? (
+                          <>
+                            <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+                            <MicOff className="w-3.5 h-3.5 text-white" />
+                            <span>
+                              Merekam {Math.floor(recordingSeconds / 60)}:{(recordingSeconds % 60) < 10 ? '0' : ''}{recordingSeconds % 60} (Selesai)
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <Mic className="w-3.5 h-3.5 text-emerald-700" />
+                            <span>Bicara via Mic (Bisa Lama)</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <textarea
+                    rows={4}
+                    value={indonesianIdea}
+                    onChange={(e) => {
+                      setIndonesianIdea(e.target.value);
+                      baseIdeaRef.current = e.target.value;
+                      sessionFinalTextRef.current = '';
+                    }}
+                    placeholder={
+                      micLang === 'id-ID'
+                        ? "Tulis atau klik 'Bicara via Mic' untuk ngomong langsung dalam Bahasa Indonesia... (Contoh: Saya mau usul bantuan dana negara maju untuk bangun shelter di perbatasan)"
+                        : "Type or click 'Bicara via Mic' to speak directly in English... (Example: Kenya calls for debt-for-education swaps to finance border shelters)"
+                    }
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-600 transition resize-none"
+                  />
+                </div>
+              </>
+            )}
 
             {/* Action button */}
             <button
               onClick={handleGenerate}
               disabled={isLoading}
-              className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition disabled:opacity-50"
+              className={`w-full py-3 px-4 rounded-xl font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition disabled:opacity-50 ${
+                aiMode === 'paper'
+                  ? 'bg-amber-800 hover:bg-amber-900 text-white'
+                  : 'bg-slate-900 hover:bg-slate-800 text-white'
+              }`}
             >
               {isLoading ? (
                 <>
                   <RotateCw className="w-4 h-4 animate-spin text-white" />
                   <span>Meracik Pidato Diplomasi ({settings.selectedModel})...</span>
+                </>
+              ) : aiMode === 'paper' ? (
+                <>
+                  <Sparkles className="w-4 h-4 text-amber-300" />
+                  <span>Terapkan Naskah Position Paper ({selectedMode.duration}s)</span>
                 </>
               ) : (
                 <>
@@ -533,6 +672,27 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
 
           {/* Teleprompter Card */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[420px]">
+            {/* Source Mode Badge Bar */}
+            <div className="flex items-center justify-between px-4 py-2 bg-slate-100/90 border-b border-slate-200 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-slate-600">Sumber Pidato:</span>
+                {speechData.sourceMode === 'paper' || aiMode === 'paper' ? (
+                  <span className="inline-flex items-center gap-1 font-bold text-amber-900 bg-amber-100/90 px-2.5 py-0.5 rounded-full border border-amber-300">
+                    <span>📄 Base on Position Paper (HARAMBEE-WAYS)</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 font-bold text-emerald-900 bg-emerald-100/90 px-2.5 py-0.5 rounded-full border border-emerald-300">
+                    <span>🌐 Online AI: {speechData.modelUsed || settings.selectedModel}</span>
+                  </span>
+                )}
+              </div>
+              <span className="text-[11px] text-slate-500 hidden sm:inline">
+                {speechData.sourceMode === 'paper' || aiMode === 'paper'
+                  ? 'Kutipan resmi paper Kenya (Bebas Halusinasi)'
+                  : 'Diproduksi dinamis via Cloud LLM'}
+              </span>
+            </div>
+
             {/* View tabs */}
             <div className="flex border-b border-slate-200 bg-slate-50 p-1.5 gap-1">
               <button

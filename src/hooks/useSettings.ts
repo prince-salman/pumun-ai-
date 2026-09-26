@@ -11,7 +11,8 @@ const DEFAULT_SETTINGS: SettingsState = {
   delegateName: 'Muhamad Salman',
   partnerName: 'Jamael Nadeem Omero Setianegara',
   isSolo: false,
-  theme: 'dark'
+  theme: 'dark',
+  aiMode: 'online'
 };
 
 export function useSettings() {
