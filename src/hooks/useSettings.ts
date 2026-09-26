@@ -4,9 +4,9 @@ import { SettingsState } from '../types';
 const STORAGE_KEY = 'kenya_pumun_settings_v1';
 
 const DEFAULT_SETTINGS: SettingsState = {
-  apiKey: 'sk-guts-83d0dcdcfcf1dc76ae8aaf946815626cbf04ebd3',
-  baseUrl: 'https://api.gutsai.id/v1',
-  selectedModel: 'nemotron-3-ultra',
+  apiKey: (import.meta.env.VITE_AI_API_KEY as string) || 'sk-guts-83d0dcdcfcf1dc76ae8aaf946815626cbf04ebd3',
+  baseUrl: (import.meta.env.VITE_AI_BASE_URL as string) || 'https://api.gutsai.id/v1',
+  selectedModel: (import.meta.env.VITE_AI_MODEL as string) || 'nemotron-3-ultra',
   speechRate: 0.95,
   delegateName: 'Muhamad Salman',
   partnerName: 'Jamael Nadeem Omero Setianegara',

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Copy, Check, Sparkles, MessageSquare, Volume2, RotateCw } from 'lucide-react';
 import { speechService } from '../services/speechSynthesis';
+import { getEffectiveBaseUrl } from '../services/aiService';
 import { CountryDossier, SettingsState } from '../types';
 
 interface NotePasserModalProps {
@@ -38,7 +39,8 @@ Provide in strict 3-part format:
 ### 2. Cara Baca
 ### 3. Makna Indonesia`;
 
-      const response = await fetch(`${settings.baseUrl}/chat/completions`, {
+      const targetUrl = getEffectiveBaseUrl(settings.baseUrl);
+      const response = await fetch(`${targetUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
