@@ -46,8 +46,10 @@ export default function DebateRadar({ settings }: DebateRadarProps) {
   const [isListeningMic, setIsListeningMic] = useState(false);
   const [speechRecognitionSupported, setSpeechRecognitionSupported] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [micLang, setMicLang] = useState<'id-ID' | 'en-US'>('id-ID');
   const isListeningMicRef = useRef(false);
   const baseRebuttalRef = useRef('');
+  const sessionFinalTextRef = useRef('');
   const recordingTimerRef = useRef<any>(null);
   const recognitionRef = useRef<any>(null);
 
@@ -57,6 +59,7 @@ export default function DebateRadar({ settings }: DebateRadarProps) {
       setSpeechRecognitionSupported(true);
     }
     return () => {
+      isListeningMicRef.current = false;
       if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch (_) {}
@@ -64,94 +67,120 @@ export default function DebateRadar({ settings }: DebateRadarProps) {
     };
   }, []);
 
-  const handleToggleMic = () => {
+  const createAndStartRecognition = () => {
+    if (!isListeningMicRef.current) return;
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) return;
 
-    if (isListeningMic) {
-      isListeningMicRef.current = false;
-      setIsListeningMic(false);
-      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-      if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch (_) {}
-      }
-    } else {
-      try {
-        if (recognitionRef.current) {
-          try { recognitionRef.current.stop(); } catch (_) {}
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = micLang;
+      recognition.maxAlternatives = 1;
+
+      recognition.onresult = (event: any) => {
+        let finalChunk = '';
+        let interimChunk = '';
+
+        for (let i = 0; i < event.results.length; ++i) {
+          const text = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalChunk += text + ' ';
+          } else {
+            interimChunk += text;
+          }
         }
 
-        baseRebuttalRef.current = rebuttalInput;
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = 'id-ID';
+        sessionFinalTextRef.current = finalChunk.trim();
 
-        recognition.onresult = (event: any) => {
-          let finalChunk = '';
-          let interimChunk = '';
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            const text = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-              finalChunk += text + ' ';
-            } else {
-              interimChunk += text;
+        const base = baseRebuttalRef.current.trim();
+        const spoken = (finalChunk + interimChunk).trim();
+        const combined = base && spoken ? `${base} ${spoken}` : (spoken || base);
+
+        setRebuttalInput(combined);
+      };
+
+      recognition.onerror = (e: any) => {
+        console.warn('Speech recognition warning:', e.error);
+        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+          stopListening();
+        }
+      };
+
+      recognition.onend = () => {
+        if (isListeningMicRef.current) {
+          if (sessionFinalTextRef.current) {
+            const base = baseRebuttalRef.current.trim();
+            baseRebuttalRef.current = base ? `${base} ${sessionFinalTextRef.current}` : sessionFinalTextRef.current;
+            sessionFinalTextRef.current = '';
+          }
+          setTimeout(() => {
+            if (isListeningMicRef.current) {
+              createAndStartRecognition();
             }
-          }
-          if (finalChunk) {
-            baseRebuttalRef.current = baseRebuttalRef.current ? `${baseRebuttalRef.current.trim()} ${finalChunk.trim()}` : finalChunk.trim();
-            setRebuttalInput(baseRebuttalRef.current);
-          } else if (interimChunk) {
-            setRebuttalInput(baseRebuttalRef.current ? `${baseRebuttalRef.current.trim()} ${interimChunk.trim()}` : interimChunk.trim());
-          }
-        };
+          }, 150);
+        } else {
+          setIsListeningMic(false);
+          if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+        }
+      };
 
-        recognition.onerror = (e: any) => {
-          console.warn('Speech recognition warning:', e.error);
-          if (e.error === 'not-allowed') {
-            isListeningMicRef.current = false;
-            setIsListeningMic(false);
-            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-          }
-        };
+      recognition.start();
+      recognitionRef.current = recognition;
+    } catch (e) {
+      console.warn('Failed to start speech recognition, retrying:', e);
+      setTimeout(() => {
+        if (isListeningMicRef.current) {
+          createAndStartRecognition();
+        }
+      }, 250);
+    }
+  };
 
-        recognition.onend = () => {
-          if (isListeningMicRef.current) {
-            try {
-              recognition.start();
-            } catch (_) {
-              setTimeout(() => {
-                if (isListeningMicRef.current) {
-                  try {
-                    recognition.start();
-                  } catch (_) {
-                    isListeningMicRef.current = false;
-                    setIsListeningMic(false);
-                    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-                  }
-                }
-              }, 250);
-            }
-          } else {
-            setIsListeningMic(false);
-            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-          }
-        };
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
 
-        recognitionRef.current = recognition;
-        recognition.start();
-        isListeningMicRef.current = true;
-        setIsListeningMic(true);
-        setRecordingSeconds(0);
-        if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-        recordingTimerRef.current = setInterval(() => {
-          setRecordingSeconds((prev) => prev + 1);
-        }, 1000);
-      } catch (e) {
-        console.error('Speech recognition error:', e);
-        isListeningMicRef.current = false;
-        setIsListeningMic(false);
-      }
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (_) {}
+      recognitionRef.current = null;
+    }
+
+    baseRebuttalRef.current = rebuttalInput;
+    sessionFinalTextRef.current = '';
+    isListeningMicRef.current = true;
+    setIsListeningMic(true);
+    setRecordingSeconds(0);
+
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+    recordingTimerRef.current = setInterval(() => {
+      setRecordingSeconds((prev) => prev + 1);
+    }, 1000);
+
+    createAndStartRecognition();
+  };
+
+  const stopListening = () => {
+    isListeningMicRef.current = false;
+    setIsListeningMic(false);
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (_) {}
+      recognitionRef.current = null;
+    }
+    if (sessionFinalTextRef.current) {
+      const base = baseRebuttalRef.current.trim();
+      baseRebuttalRef.current = base ? `${base} ${sessionFinalTextRef.current}` : sessionFinalTextRef.current;
+      sessionFinalTextRef.current = '';
+    }
+  };
+
+  const handleToggleMic = () => {
+    if (isListeningMic) {
+      stopListening();
+    } else {
+      startListening();
     }
   };
 
@@ -568,8 +597,38 @@ export default function DebateRadar({ settings }: DebateRadarProps) {
 
             {/* Custom Input Box */}
             <div className="pt-2 border-t border-slate-200 space-y-2">
-              <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
-                <span>Atau Masukkan Apa yang Anda Dengar:</span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                <span className="text-xs font-bold text-slate-700">Atau Masukkan Apa yang Anda Dengar:</span>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center rounded-lg bg-slate-200/80 p-0.5 border border-slate-300 text-[10px] font-bold">
+                    <button
+                      type="button"
+                      onClick={() => setMicLang('id-ID')}
+                      disabled={isListeningMic}
+                      className={`px-2 py-0.5 rounded-md transition ${
+                        micLang === 'id-ID'
+                          ? 'bg-emerald-700 text-white shadow-xs font-black'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                      title="Bahasa Suara: Bahasa Indonesia"
+                    >
+                      ID
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMicLang('en-US')}
+                      disabled={isListeningMic}
+                      className={`px-2 py-0.5 rounded-md transition ${
+                        micLang === 'en-US'
+                          ? 'bg-blue-700 text-white shadow-xs font-black'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                      title="Bahasa Suara: English"
+                    >
+                      EN
+                    </button>
+                  </div>
+
                   <button
                     type="button"
                     onClick={handleToggleMic}
@@ -585,13 +644,22 @@ export default function DebateRadar({ settings }: DebateRadarProps) {
                       ? `Merekam ${Math.floor(recordingSeconds / 60)}:${(recordingSeconds % 60) < 10 ? '0' : ''}${recordingSeconds % 60} (Selesai)`
                       : 'Pakai Mic (Bisa Lama)'}
                   </button>
-              </label>
+                </div>
+              </div>
 
               <textarea
                 rows={3}
                 value={rebuttalInput}
-                onChange={(e) => setRebuttalInput(e.target.value)}
-                placeholder="Contoh: Negara Swedia nanya dana rehabilitasi dari mana, atau mereka lagi bahas anak di perbatasan..."
+                onChange={(e) => {
+                  setRebuttalInput(e.target.value);
+                  baseRebuttalRef.current = e.target.value;
+                  sessionFinalTextRef.current = '';
+                }}
+                placeholder={
+                  micLang === 'id-ID'
+                    ? "Ketik atau klik 'Pakai Mic' dalam Bahasa Indonesia (Contoh: Negara Swedia nanya dana rehabilitasi dari mana)..."
+                    : "Type or click 'Pakai Mic' in English (Example: Sweden delegate questioned where rehabilitation funding comes from)..."
+                }
                 className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-600"
               />
 

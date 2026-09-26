@@ -52,9 +52,10 @@ export default function DebateListener({ settings }: DebateListenerProps) {
   const [isListeningMic, setIsListeningMic] = useState<boolean>(false);
   const [speechRecognitionSupported, setSpeechRecognitionSupported] = useState<boolean>(false);
   const [recordingSeconds, setRecordingSeconds] = useState<number>(0);
-  const [micLang, setMicLang] = useState<'en-US' | 'id-ID'>('en-US');
+  const [micLang, setMicLang] = useState<'id-ID' | 'en-US'>('id-ID');
   const isListeningMicRef = useRef<boolean>(false);
   const baseTextRef = useRef<string>('');
+  const sessionFinalTextRef = useRef<string>('');
   const recordingTimerRef = useRef<any>(null);
   const recognitionRef = useRef<any>(null);
 
@@ -64,6 +65,7 @@ export default function DebateListener({ settings }: DebateListenerProps) {
       setSpeechRecognitionSupported(true);
     }
     return () => {
+      isListeningMicRef.current = false;
       if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch (_) {}
@@ -71,28 +73,23 @@ export default function DebateListener({ settings }: DebateListenerProps) {
     };
   }, []);
 
-  const startListening = () => {
+  const createAndStartRecognition = () => {
+    if (!isListeningMicRef.current) return;
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert('Browser Anda belum mendukung input suara langsung. Disarankan menggunakan Google Chrome atau Microsoft Edge.');
-      return;
-    }
+    if (!SpeechRecognition) return;
 
     try {
-      if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch (_) {}
-      }
-
-      baseTextRef.current = speechInput;
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = micLang;
+      recognition.maxAlternatives = 1;
 
       recognition.onresult = (event: any) => {
         let finalChunk = '';
         let interimChunk = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
+
+        for (let i = 0; i < event.results.length; ++i) {
           const text = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
             finalChunk += text + ' ';
@@ -100,41 +97,35 @@ export default function DebateListener({ settings }: DebateListenerProps) {
             interimChunk += text;
           }
         }
-        if (finalChunk) {
-          baseTextRef.current = baseTextRef.current ? `${baseTextRef.current.trim()} ${finalChunk.trim()}` : finalChunk.trim();
-          setSpeechInput(baseTextRef.current);
-        } else if (interimChunk) {
-          setSpeechInput(baseTextRef.current ? `${baseTextRef.current.trim()} ${interimChunk.trim()}` : interimChunk.trim());
-        }
+
+        sessionFinalTextRef.current = finalChunk.trim();
+
+        const base = baseTextRef.current.trim();
+        const spoken = (finalChunk + interimChunk).trim();
+        const combined = base && spoken ? `${base} ${spoken}` : (spoken || base);
+
+        setSpeechInput(combined);
       };
 
       recognition.onerror = (e: any) => {
         console.warn('Speech recognition notice:', e.error);
-        if (e.error === 'not-allowed') {
-          isListeningMicRef.current = false;
-          setIsListeningMic(false);
-          if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+          stopListening();
         }
       };
 
       recognition.onend = () => {
-        // Auto-restart if user has not clicked Stop (prevents Chrome 10s-60s timeout cut-offs)
         if (isListeningMicRef.current) {
-          try {
-            recognition.start();
-          } catch (_) {
-            setTimeout(() => {
-              if (isListeningMicRef.current) {
-                try {
-                  recognition.start();
-                } catch (_) {
-                  isListeningMicRef.current = false;
-                  setIsListeningMic(false);
-                  if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-                }
-              }
-            }, 250);
+          if (sessionFinalTextRef.current) {
+            const base = baseTextRef.current.trim();
+            baseTextRef.current = base ? `${base} ${sessionFinalTextRef.current}` : sessionFinalTextRef.current;
+            sessionFinalTextRef.current = '';
           }
+          setTimeout(() => {
+            if (isListeningMicRef.current) {
+              createAndStartRecognition();
+            }
+          }, 150);
         } else {
           setIsListeningMic(false);
           if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
@@ -143,18 +134,40 @@ export default function DebateListener({ settings }: DebateListenerProps) {
 
       recognition.start();
       recognitionRef.current = recognition;
-      isListeningMicRef.current = true;
-      setIsListeningMic(true);
-      setRecordingSeconds(0);
-      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-      recordingTimerRef.current = setInterval(() => {
-        setRecordingSeconds((prev) => prev + 1);
-      }, 1000);
     } catch (err) {
-      console.error('Failed to start speech recognition:', err);
-      isListeningMicRef.current = false;
-      setIsListeningMic(false);
+      console.warn('Failed to start recognition, retrying:', err);
+      setTimeout(() => {
+        if (isListeningMicRef.current) {
+          createAndStartRecognition();
+        }
+      }, 250);
     }
+  };
+
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Browser Anda belum mendukung input suara langsung. Disarankan menggunakan Google Chrome atau Microsoft Edge.');
+      return;
+    }
+
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (_) {}
+      recognitionRef.current = null;
+    }
+
+    baseTextRef.current = speechInput;
+    sessionFinalTextRef.current = '';
+    isListeningMicRef.current = true;
+    setIsListeningMic(true);
+    setRecordingSeconds(0);
+
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+    recordingTimerRef.current = setInterval(() => {
+      setRecordingSeconds((prev) => prev + 1);
+    }, 1000);
+
+    createAndStartRecognition();
   };
 
   const stopListening = () => {
@@ -163,6 +176,12 @@ export default function DebateListener({ settings }: DebateListenerProps) {
     if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
     if (recognitionRef.current) {
       try { recognitionRef.current.stop(); } catch (_) {}
+      recognitionRef.current = null;
+    }
+    if (sessionFinalTextRef.current) {
+      const base = baseTextRef.current.trim();
+      baseTextRef.current = base ? `${base} ${sessionFinalTextRef.current}` : sessionFinalTextRef.current;
+      sessionFinalTextRef.current = '';
     }
   };
 
@@ -297,33 +316,33 @@ export default function DebateListener({ settings }: DebateListenerProps) {
             </label>
 
             <div className="flex items-center gap-2">
-              {/* Language toggle: English for foreign delegates in MUN, Indonesian for local thoughts */}
-              <div className="flex items-center rounded-lg bg-slate-100 p-0.5 border border-slate-200 text-[11px] font-bold">
-                <button
-                  type="button"
-                  onClick={() => setMicLang('en-US')}
-                  disabled={isListeningMic}
-                  className={`px-2 py-0.5 rounded-md transition ${
-                    micLang === 'en-US'
-                      ? 'bg-white text-blue-700 shadow-xs'
-                      : 'text-slate-500 hover:text-slate-800'
-                  }`}
-                  title="Bahasa Pidato: English (Delegasi Asing)"
-                >
-                  EN
-                </button>
+              {/* Language toggle: ID for Indonesian speech, EN for English speeches */}
+              <div className="flex items-center rounded-lg bg-slate-200/80 p-0.5 border border-slate-300 text-[11px] font-bold">
                 <button
                   type="button"
                   onClick={() => setMicLang('id-ID')}
                   disabled={isListeningMic}
-                  className={`px-2 py-0.5 rounded-md transition ${
+                  className={`px-2.5 py-1 rounded-md transition ${
                     micLang === 'id-ID'
-                      ? 'bg-white text-emerald-700 shadow-xs'
-                      : 'text-slate-500 hover:text-slate-800'
+                      ? 'bg-emerald-700 text-white shadow-xs font-black'
+                      : 'text-slate-600 hover:text-slate-900'
                   }`}
-                  title="Bahasa Pidato: Bahasa Indonesia"
+                  title="Bahasa Suara: Bahasa Indonesia (Bicara Ide Anda)"
                 >
-                  ID
+                  ID (Indonesia)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMicLang('en-US')}
+                  disabled={isListeningMic}
+                  className={`px-2.5 py-1 rounded-md transition ${
+                    micLang === 'en-US'
+                      ? 'bg-blue-700 text-white shadow-xs font-black'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                  title="Bahasa Suara: English (Dengar Pidato Delegasi Asing)"
+                >
+                  EN (English)
                 </button>
               </div>
 
@@ -358,10 +377,18 @@ export default function DebateListener({ settings }: DebateListenerProps) {
           </div>
 
           <textarea
-            rows={2}
+            rows={3}
             value={speechInput}
-            onChange={(e) => setSpeechInput(e.target.value)}
-            placeholder="Ketik dalam Bahasa Indonesia apa yang Anda dengar (contoh: mereka nanya dana dari mana, atau mereka nyalahin perbatasan Afrika yang bocor)..."
+            onChange={(e) => {
+              setSpeechInput(e.target.value);
+              baseTextRef.current = e.target.value;
+              sessionFinalTextRef.current = '';
+            }}
+            placeholder={
+              micLang === 'id-ID'
+                ? "Ketik dalam Bahasa Indonesia apa yang Anda dengar (contoh: mereka nanya dana dari mana, atau mereka nyalahin perbatasan Afrika yang bocor)..."
+                : "Type or speak in English what the opponent delegate says on the podium (e.g. they questioned funding and cross-border security)..."
+            }
             className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-600 resize-none transition"
           />
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Sparkles, 
   Volume2, 
@@ -63,14 +63,98 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
   const [copied, setCopied] = useState<boolean>(false);
   const [isListening, setIsListening] = useState<boolean>(false);
   const [recordingSeconds, setRecordingSeconds] = useState<number>(0);
+  const [micLang, setMicLang] = useState<'id-ID' | 'en-US'>('id-ID');
   const isListeningRef = useRef<boolean>(false);
   const baseIdeaRef = useRef<string>('');
+  const sessionFinalTextRef = useRef<string>('');
   const recordingTimerRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
 
-  // Speech-to-Text (Voice input with continuous recording)
-  const toggleListening = () => {
+  useEffect(() => {
+    return () => {
+      isListeningRef.current = false;
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (_) {}
+      }
+    };
+  }, []);
+
+  const createAndStartRecognition = () => {
+    if (!isListeningRef.current) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = micLang;
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      recognition.onresult = (event: any) => {
+        let finalChunk = '';
+        let interimChunk = '';
+
+        for (let i = 0; i < event.results.length; ++i) {
+          const text = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalChunk += text + ' ';
+          } else {
+            interimChunk += text;
+          }
+        }
+
+        sessionFinalTextRef.current = finalChunk.trim();
+
+        const base = baseIdeaRef.current.trim();
+        const spoken = (finalChunk + interimChunk).trim();
+        const combined = base && spoken ? `${base} ${spoken}` : (spoken || base);
+
+        setIndonesianIdea(combined);
+      };
+
+      recognition.onerror = (e: any) => {
+        console.warn("Speech recognition warning:", e.error);
+        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+          stopListening();
+        }
+      };
+
+      recognition.onend = () => {
+        if (isListeningRef.current) {
+          if (sessionFinalTextRef.current) {
+            const base = baseIdeaRef.current.trim();
+            baseIdeaRef.current = base ? `${base} ${sessionFinalTextRef.current}` : sessionFinalTextRef.current;
+            sessionFinalTextRef.current = '';
+          }
+          setTimeout(() => {
+            if (isListeningRef.current) {
+              createAndStartRecognition();
+            }
+          }, 150);
+        } else {
+          setIsListening(false);
+          if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+        }
+      };
+
+      recognition.start();
+      recognitionRef.current = recognition;
+    } catch (err) {
+      console.warn("Failed to start speech recognition, retrying:", err);
+      setTimeout(() => {
+        if (isListeningRef.current) {
+          createAndStartRecognition();
+        }
+      }, 250);
+    }
+  };
+
+  const startListening = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -78,94 +162,45 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
       return;
     }
 
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (_) {}
+      recognitionRef.current = null;
+    }
+
+    baseIdeaRef.current = indonesianIdea;
+    sessionFinalTextRef.current = '';
+    isListeningRef.current = true;
+    setIsListening(true);
+    setRecordingSeconds(0);
+
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+    recordingTimerRef.current = setInterval(() => {
+      setRecordingSeconds((prev) => prev + 1);
+    }, 1000);
+
+    createAndStartRecognition();
+  };
+
+  const stopListening = () => {
+    isListeningRef.current = false;
+    setIsListening(false);
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (_) {}
+      recognitionRef.current = null;
+    }
+    if (sessionFinalTextRef.current) {
+      const base = baseIdeaRef.current.trim();
+      baseIdeaRef.current = base ? `${base} ${sessionFinalTextRef.current}` : sessionFinalTextRef.current;
+      sessionFinalTextRef.current = '';
+    }
+  };
+
+  const toggleListening = () => {
     if (isListening) {
-      isListeningRef.current = false;
-      setIsListening(false);
-      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (_) {}
-      }
+      stopListening();
     } else {
-      try {
-        if (recognitionRef.current) {
-          try { recognitionRef.current.stop(); } catch (_) {}
-        }
-
-        baseIdeaRef.current = indonesianIdea;
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'id-ID';
-        recognition.continuous = true;
-        recognition.interimResults = true;
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        recognition.onresult = (event: any) => {
-          let finalChunk = '';
-          let interimChunk = '';
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            const text = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-              finalChunk += text + ' ';
-            } else {
-              interimChunk += text;
-            }
-          }
-          if (finalChunk) {
-            baseIdeaRef.current = baseIdeaRef.current ? `${baseIdeaRef.current.trim()} ${finalChunk.trim()}` : finalChunk.trim();
-            setIndonesianIdea(baseIdeaRef.current);
-          } else if (interimChunk) {
-            setIndonesianIdea(baseIdeaRef.current ? `${baseIdeaRef.current.trim()} ${interimChunk.trim()}` : interimChunk.trim());
-          }
-        };
-
-        recognition.onerror = (e: any) => {
-          console.warn("Speech recognition warning:", e.error);
-          if (e.error === 'not-allowed') {
-            isListeningRef.current = false;
-            setIsListening(false);
-            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-          }
-        };
-
-        recognition.onend = () => {
-          // Auto-restart if user hasn't clicked Stop (allows recording for as long as desired)
-          if (isListeningRef.current) {
-            try {
-              recognition.start();
-            } catch (_) {
-              setTimeout(() => {
-                if (isListeningRef.current) {
-                  try {
-                    recognition.start();
-                  } catch (_) {
-                    isListeningRef.current = false;
-                    setIsListening(false);
-                    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-                  }
-                }
-              }, 250);
-            }
-          } else {
-            setIsListening(false);
-            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-          }
-        };
-
-        recognitionRef.current = recognition;
-        recognition.start();
-        isListeningRef.current = true;
-        setIsListening(true);
-        setRecordingSeconds(0);
-        if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-        recordingTimerRef.current = setInterval(() => {
-          setRecordingSeconds((prev) => prev + 1);
-        }, 1000);
-      } catch (err) {
-        console.error("Speech recognition error:", err);
-        isListeningRef.current = false;
-        setIsListening(false);
-      }
+      startListening();
     }
   };
 
@@ -344,37 +379,76 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
                   3. Ide / Pesan Anda (Bahasa Indonesia)
                 </label>
-                <button
-                  type="button"
-                  onClick={toggleListening}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
-                    isListening
-                      ? 'bg-rose-600 text-white border border-rose-700 animate-pulse shadow-sm'
-                      : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
-                  }`}
-                  title={isListening ? "Klik untuk menghentikan rekaman" : "Klik untuk bicara via mic (rekam tanpa batas waktu)"}
-                >
-                  {isListening ? (
-                    <>
-                      <span className="w-2 h-2 rounded-full bg-white animate-ping" />
-                      <MicOff className="w-3.5 h-3.5 text-white" />
-                      <span>
-                        Merekam {Math.floor(recordingSeconds / 60)}:{(recordingSeconds % 60) < 10 ? '0' : ''}{recordingSeconds % 60} (Selesai)
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Mic className="w-3.5 h-3.5 text-emerald-700" />
-                      <span>Bicara via Mic (Bisa Lama)</span>
-                    </>
-                  )}
-                </button>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center rounded-lg bg-slate-200/80 p-0.5 border border-slate-300 text-[11px] font-bold">
+                    <button
+                      type="button"
+                      onClick={() => setMicLang('id-ID')}
+                      disabled={isListening}
+                      className={`px-2 py-0.5 rounded-md transition ${
+                        micLang === 'id-ID'
+                          ? 'bg-emerald-700 text-white shadow-xs font-black'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                      title="Bahasa Suara: Bahasa Indonesia"
+                    >
+                      ID
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMicLang('en-US')}
+                      disabled={isListening}
+                      className={`px-2 py-0.5 rounded-md transition ${
+                        micLang === 'en-US'
+                          ? 'bg-blue-700 text-white shadow-xs font-black'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                      title="Bahasa Suara: English"
+                    >
+                      EN
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={toggleListening}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
+                      isListening
+                        ? 'bg-rose-600 text-white border border-rose-700 animate-pulse shadow-sm'
+                        : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
+                    }`}
+                    title={isListening ? "Klik untuk menghentikan rekaman" : "Klik untuk bicara via mic (rekam tanpa batas waktu)"}
+                  >
+                    {isListening ? (
+                      <>
+                        <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+                        <MicOff className="w-3.5 h-3.5 text-white" />
+                        <span>
+                          Merekam {Math.floor(recordingSeconds / 60)}:{(recordingSeconds % 60) < 10 ? '0' : ''}{recordingSeconds % 60} (Selesai)
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="w-3.5 h-3.5 text-emerald-700" />
+                        <span>Bicara via Mic (Bisa Lama)</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
               <textarea
                 rows={4}
                 value={indonesianIdea}
-                onChange={(e) => setIndonesianIdea(e.target.value)}
-                placeholder="Tulis atau klik 'Bicara via Mic' untuk ngomong langsung dalam Bahasa Indonesia... (Contoh: Saya mau usul bantuan dana negara maju untuk bangun shelter di perbatasan)"
+                onChange={(e) => {
+                  setIndonesianIdea(e.target.value);
+                  baseIdeaRef.current = e.target.value;
+                  sessionFinalTextRef.current = '';
+                }}
+                placeholder={
+                  micLang === 'id-ID'
+                    ? "Tulis atau klik 'Bicara via Mic' untuk ngomong langsung dalam Bahasa Indonesia... (Contoh: Saya mau usul bantuan dana negara maju untuk bangun shelter di perbatasan)"
+                    : "Type or click 'Bicara via Mic' to speak directly in English... (Example: Kenya calls for debt-for-education swaps to finance border shelters)"
+                }
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-emerald-600 transition resize-none"
               />
             </div>
