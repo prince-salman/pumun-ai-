@@ -62,10 +62,14 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
   const [isListening, setIsListening] = useState<boolean>(false);
+  const [recordingSeconds, setRecordingSeconds] = useState<number>(0);
+  const isListeningRef = useRef<boolean>(false);
+  const baseIdeaRef = useRef<string>('');
+  const recordingTimerRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
 
-  // Speech-to-Text (Voice input in Indonesian)
+  // Speech-to-Text (Voice input with continuous recording)
   const toggleListening = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -75,37 +79,91 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
     }
 
     if (isListening) {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
+      isListeningRef.current = false;
       setIsListening(false);
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (_) {}
+      }
     } else {
       try {
+        if (recognitionRef.current) {
+          try { recognitionRef.current.stop(); } catch (_) {}
+        }
+
+        baseIdeaRef.current = indonesianIdea;
         const recognition = new SpeechRecognition();
-        recognition.lang = 'id-ID'; // Indonesian voice recognition
-        recognition.continuous = false;
-        recognition.interimResults = false;
+        recognition.lang = 'id-ID';
+        recognition.continuous = true;
+        recognition.interimResults = true;
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         recognition.onresult = (event: any) => {
-          const transcript = event.results[0][0].transcript;
-          setIndonesianIdea((prev) => (prev ? `${prev} ${transcript}` : transcript));
-          setIsListening(false);
+          let finalChunk = '';
+          let interimChunk = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            const text = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalChunk += text + ' ';
+            } else {
+              interimChunk += text;
+            }
+          }
+          if (finalChunk) {
+            baseIdeaRef.current = baseIdeaRef.current ? `${baseIdeaRef.current.trim()} ${finalChunk.trim()}` : finalChunk.trim();
+            setIndonesianIdea(baseIdeaRef.current);
+          } else if (interimChunk) {
+            setIndonesianIdea(baseIdeaRef.current ? `${baseIdeaRef.current.trim()} ${interimChunk.trim()}` : interimChunk.trim());
+          }
         };
 
-        recognition.onerror = () => {
-          setIsListening(false);
+        recognition.onerror = (e: any) => {
+          console.warn("Speech recognition warning:", e.error);
+          if (e.error === 'not-allowed') {
+            isListeningRef.current = false;
+            setIsListening(false);
+            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+          }
         };
 
         recognition.onend = () => {
-          setIsListening(false);
+          // Auto-restart if user hasn't clicked Stop (allows recording for as long as desired)
+          if (isListeningRef.current) {
+            try {
+              recognition.start();
+            } catch (_) {
+              setTimeout(() => {
+                if (isListeningRef.current) {
+                  try {
+                    recognition.start();
+                  } catch (_) {
+                    isListeningRef.current = false;
+                    setIsListening(false);
+                    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+                  }
+                }
+              }, 250);
+            }
+          } else {
+            setIsListening(false);
+            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+          }
         };
 
         recognitionRef.current = recognition;
         recognition.start();
+        isListeningRef.current = true;
         setIsListening(true);
+        setRecordingSeconds(0);
+        if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = setInterval(() => {
+          setRecordingSeconds((prev) => prev + 1);
+        }, 1000);
       } catch (err) {
         console.error("Speech recognition error:", err);
+        isListeningRef.current = false;
         setIsListening(false);
       }
     }
@@ -289,22 +347,25 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
                 <button
                   type="button"
                   onClick={toggleListening}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
+                  className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition ${
                     isListening
-                      ? 'bg-rose-100 text-rose-700 border border-rose-300 animate-pulse'
+                      ? 'bg-rose-600 text-white border border-rose-700 animate-pulse shadow-sm'
                       : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300'
                   }`}
-                  title={isListening ? "Sedang merekam suara... Klik untuk berhenti" : "Klik untuk bicara lewat mic"}
+                  title={isListening ? "Klik untuk menghentikan rekaman" : "Klik untuk bicara via mic (rekam tanpa batas waktu)"}
                 >
                   {isListening ? (
                     <>
-                      <MicOff className="w-3.5 h-3.5 text-rose-600" />
-                      <span>Mendengarkan...</span>
+                      <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+                      <MicOff className="w-3.5 h-3.5 text-white" />
+                      <span>
+                        Merekam {Math.floor(recordingSeconds / 60)}:{(recordingSeconds % 60) < 10 ? '0' : ''}{recordingSeconds % 60} (Selesai)
+                      </span>
                     </>
                   ) : (
                     <>
                       <Mic className="w-3.5 h-3.5 text-emerald-700" />
-                      <span>Bicara via Mic 🎙️</span>
+                      <span>Bicara via Mic (Bisa Lama)</span>
                     </>
                   )}
                 </button>
@@ -483,7 +544,7 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
                     <span className="font-bold uppercase tracking-wide">Panduan Lafal Bahasa Indonesia (Baca Saja Ini di Podium!)</span>
                     <span>Suku kata ejaan santai</span>
                   </div>
-                  <div className={`font-mono text-slate-900 leading-loose whitespace-pre-line font-medium bg-amber-50/70 p-5 sm:p-6 rounded-xl border border-amber-200 ${
+                  <div className={`font-sans font-semibold tracking-wide text-slate-900 leading-loose whitespace-pre-line bg-amber-50/70 p-5 sm:p-6 rounded-xl border border-amber-200 ${
                     isPodiumFocus ? 'text-xl sm:text-3xl' : 'text-base sm:text-xl'
                   }`}>
                     {speechData.caraBaca}
@@ -522,7 +583,7 @@ export default function SpeechTeleprompter({ settings }: SpeechTeleprompterProps
                     <div className="text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
                       <Mic className="w-3.5 h-3.5" /> 2. Panduan Cara Baca (Lafal Fonetik)
                     </div>
-                    <div className="text-sm sm:text-base font-mono text-slate-900 leading-loose whitespace-pre-line font-medium">
+                    <div className="text-sm sm:text-base font-sans font-semibold tracking-wide text-slate-900 leading-loose whitespace-pre-line">
                       {speechData.caraBaca}
                     </div>
                   </div>

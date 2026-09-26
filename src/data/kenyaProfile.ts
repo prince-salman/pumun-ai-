@@ -6,8 +6,8 @@ export const kenyaProfile: KenyaProfile = {
   capital: 'Nairobi',
   region: 'East Africa',
   committee: 'UNICEF (United Nations Children\'s Fund)',
-  delegateName: 'Muhamad Salman',
-  role: 'Solo Delegate (Delegasi Mandiri)',
+  delegateName: 'Muhamad Salman & Jamael Nadeem Omero Setianegara',
+  role: 'Dual Delegation (Delegasi Berpasangan)',
   flagEmoji: '🇰🇪',
   agenda: 'Strengthening educational opportunities and long-term prospects for child survivors of sexual exploitation and trafficking',
   

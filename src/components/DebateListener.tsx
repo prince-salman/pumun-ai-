@@ -50,40 +50,127 @@ export default function DebateListener({ settings }: DebateListenerProps) {
 
   // Voice recording state
   const [isListeningMic, setIsListeningMic] = useState<boolean>(false);
-  const [recognitionInstance, setRecognitionInstance] = useState<any>(null);
+  const [speechRecognitionSupported, setSpeechRecognitionSupported] = useState<boolean>(false);
+  const [recordingSeconds, setRecordingSeconds] = useState<number>(0);
+  const [micLang, setMicLang] = useState<'en-US' | 'id-ID'>('en-US');
+  const isListeningMicRef = useRef<boolean>(false);
+  const baseTextRef = useRef<string>('');
+  const recordingTimerRef = useRef<any>(null);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'id-ID';
-
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setSpeechInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
-        setIsListeningMic(false);
-      };
-
-      recognition.onerror = () => setIsListeningMic(false);
-      recognition.onend = () => setIsListeningMic(false);
-      setRecognitionInstance(recognition);
+      setSpeechRecognitionSupported(true);
     }
+    return () => {
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (_) {}
+      }
+    };
   }, []);
 
-  const handleToggleMic = () => {
-    if (!recognitionInstance) return;
-    if (isListeningMic) {
-      recognitionInstance.stop();
-      setIsListeningMic(false);
-    } else {
-      try {
-        recognitionInstance.start();
-        setIsListeningMic(true);
-      } catch (e) {
-        console.error('Speech recognition error:', e);
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Browser Anda belum mendukung input suara langsung. Disarankan menggunakan Google Chrome atau Microsoft Edge.');
+      return;
+    }
+
+    try {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (_) {}
       }
+
+      baseTextRef.current = speechInput;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = micLang;
+
+      recognition.onresult = (event: any) => {
+        let finalChunk = '';
+        let interimChunk = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const text = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalChunk += text + ' ';
+          } else {
+            interimChunk += text;
+          }
+        }
+        if (finalChunk) {
+          baseTextRef.current = baseTextRef.current ? `${baseTextRef.current.trim()} ${finalChunk.trim()}` : finalChunk.trim();
+          setSpeechInput(baseTextRef.current);
+        } else if (interimChunk) {
+          setSpeechInput(baseTextRef.current ? `${baseTextRef.current.trim()} ${interimChunk.trim()}` : interimChunk.trim());
+        }
+      };
+
+      recognition.onerror = (e: any) => {
+        console.warn('Speech recognition notice:', e.error);
+        if (e.error === 'not-allowed') {
+          isListeningMicRef.current = false;
+          setIsListeningMic(false);
+          if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+        }
+      };
+
+      recognition.onend = () => {
+        // Auto-restart if user has not clicked Stop (prevents Chrome 10s-60s timeout cut-offs)
+        if (isListeningMicRef.current) {
+          try {
+            recognition.start();
+          } catch (_) {
+            setTimeout(() => {
+              if (isListeningMicRef.current) {
+                try {
+                  recognition.start();
+                } catch (_) {
+                  isListeningMicRef.current = false;
+                  setIsListeningMic(false);
+                  if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+                }
+              }
+            }, 250);
+          }
+        } else {
+          setIsListeningMic(false);
+          if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+        }
+      };
+
+      recognition.start();
+      recognitionRef.current = recognition;
+      isListeningMicRef.current = true;
+      setIsListeningMic(true);
+      setRecordingSeconds(0);
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingSeconds((prev) => prev + 1);
+      }, 1000);
+    } catch (err) {
+      console.error('Failed to start speech recognition:', err);
+      isListeningMicRef.current = false;
+      setIsListeningMic(false);
+    }
+  };
+
+  const stopListening = () => {
+    isListeningMicRef.current = false;
+    setIsListeningMic(false);
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (_) {}
+    }
+  };
+
+  const handleToggleMic = () => {
+    if (isListeningMic) {
+      stopListening();
+    } else {
+      startListening();
     }
   };
 
@@ -204,34 +291,70 @@ export default function DebateListener({ settings }: DebateListenerProps) {
 
         {/* Input Text or Microphone */}
         <div className="space-y-2 pt-2 border-t border-slate-100">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <label className="text-xs font-semibold text-slate-700">
               Langkah 2: Apa yang Mereka Katakan / Kata Kunci yang Anda Dengar?
             </label>
 
-            {recognitionInstance && (
-              <button
-                type="button"
-                onClick={handleToggleMic}
-                className={`text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1.5 transition border ${
-                  isListeningMic
-                    ? 'bg-rose-100 text-rose-700 border-rose-300 animate-pulse'
-                    : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border-emerald-300'
-                }`}
-              >
-                {isListeningMic ? (
-                  <>
-                    <MicOff className="w-3.5 h-3.5 text-rose-600" />
-                    <span>Mendengarkan...</span>
-                  </>
-                ) : (
-                  <>
-                    <Mic className="w-3.5 h-3.5 text-emerald-700" />
-                    <span>Bicara / Rekam via Mic 🎙️</span>
-                  </>
-                )}
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {/* Language toggle: English for foreign delegates in MUN, Indonesian for local thoughts */}
+              <div className="flex items-center rounded-lg bg-slate-100 p-0.5 border border-slate-200 text-[11px] font-bold">
+                <button
+                  type="button"
+                  onClick={() => setMicLang('en-US')}
+                  disabled={isListeningMic}
+                  className={`px-2 py-0.5 rounded-md transition ${
+                    micLang === 'en-US'
+                      ? 'bg-white text-blue-700 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                  title="Bahasa Pidato: English (Delegasi Asing)"
+                >
+                  EN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMicLang('id-ID')}
+                  disabled={isListeningMic}
+                  className={`px-2 py-0.5 rounded-md transition ${
+                    micLang === 'id-ID'
+                      ? 'bg-white text-emerald-700 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                  title="Bahasa Pidato: Bahasa Indonesia"
+                >
+                  ID
+                </button>
+              </div>
+
+              {speechRecognitionSupported && (
+                <button
+                  type="button"
+                  onClick={handleToggleMic}
+                  className={`text-xs px-3.5 py-1.5 rounded-full font-bold flex items-center gap-1.5 transition border ${
+                    isListeningMic
+                      ? 'bg-rose-600 text-white border-rose-700 animate-pulse shadow-sm'
+                      : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border-emerald-300'
+                  }`}
+                  title={isListeningMic ? "Klik untuk menghentikan rekaman" : "Mulai merekam suara tanpa batas waktu (bisa lama)"}
+                >
+                  {isListeningMic ? (
+                    <>
+                      <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+                      <MicOff className="w-3.5 h-3.5 text-white" />
+                      <span>
+                        Merekam {Math.floor(recordingSeconds / 60)}:{(recordingSeconds % 60) < 10 ? '0' : ''}{recordingSeconds % 60} (Klik Selesai)
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-3.5 h-3.5 text-emerald-700" />
+                      <span>Rekam Suara (Bisa Lama)</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
 
           <textarea
@@ -408,7 +531,7 @@ export default function DebateListener({ settings }: DebateListenerProps) {
                   <div className="text-[10px] font-bold uppercase tracking-wider text-amber-800">
                     Lafalkan Saja Teks Ini di Depan Mikrofon:
                   </div>
-                  <p className="text-slate-900 font-mono text-lg sm:text-xl leading-loose font-medium">
+                  <p className="text-slate-900 font-sans text-lg sm:text-xl leading-loose font-semibold tracking-wide">
                     "{analysisResult.counterSpeech.caraBaca}"
                   </p>
                 </div>

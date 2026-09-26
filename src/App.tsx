@@ -50,8 +50,7 @@ export default function App() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-slate-700">Republic of Kenya • PUMUN Regeneration 2026 (SDC 1.0)</span>
-            <span className="text-slate-300">•</span>
-            <span className="text-emerald-700 font-medium">Solo Delegate: Muhamad Salman</span>
+            <span className="text-emerald-700 font-medium">Delegates: {settings.delegateName}{settings.partnerName ? ` & ${settings.partnerName}` : ''}</span>
           </div>
 
           <div className="flex items-center gap-3">

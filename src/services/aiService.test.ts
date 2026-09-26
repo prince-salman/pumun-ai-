@@ -7,9 +7,9 @@ describe('aiService parser and generator (TypeScript)', () => {
 Honorable Chair, distinguished delegates,
 The Republic of Kenya firmly believes that every child survivor deserves unhindered access to quality education. We call upon all nations to eliminate bureaucratic barriers. Kenya yields its time to the Dais.
 
-### 2. Cara Baca (Panduan Lafal Fonetik Indonesia)
-Onorebel Cyeer, distingsy-d deligets,
-Di Repablik of Kenya fermli bilivs det efri caild servaivor diserfs anhinderd ekses tu kualiti edyukeisyen. Wi kol apon ol neisyens tu ilimineit byurokretik beriyers. Kenya yilds its taim tu di Dais.
+### 2. Cara Baca (Panduan Lafal Suku Kata Indonesia)
+O-no-re-bel Cyer, dis-ting-guis-yed de-le-geits,
+De Re-pab-lik of Ken-ya ferm-li bi-livs det ev-ri caild ser-vai-vor di-serfs an-hin-derd ek-ses tu kwa-li-ti e-dyu-kei-syon. Wi kol a-pon ol nei-syens tu i-li-mi-neit byu-ro-kre-tik be-ri-ers. Ken-ya yilds its taim tu de Dais.
 
 ### 3. Makna Bahasa Indonesia (Terjemahan & Penjelasan)
 Ketua yang terhormat dan delegasi yang mulia,
@@ -19,7 +19,7 @@ Republik Kenya sangat meyakini bahwa setiap anak korban berhak mendapatkan akses
   it('correctly parses 3-layer response into structured fields', () => {
     const parsed = parseTriLayerResponse(sampleRawResponse);
     expect(parsed.english).toContain('Honorable Chair');
-    expect(parsed.caraBaca).toContain('Onorebel Cyeer');
+    expect(parsed.caraBaca).toContain('O-no-re-bel Cyer');
     expect(parsed.indoMeaning).toContain('Ketua yang terhormat');
     expect(parsed.wordCount).toBeGreaterThan(20);
     expect(parsed.estimatedSeconds).toBeGreaterThan(10);

@@ -31,7 +31,7 @@ export default function NotePasserModal({ targetCountry, onClose, settings }: No
       const prompt = `Write a short, highly professional Diplomatic Note (note-passing during MUN session) from the Republic of Kenya to the Delegation of ${targetCountry.name}.
 Target Country Stance: ${targetCountry.stance}
 Purpose of Note: ${noteGoal}
-Author: Muhamad Salman (Solo Delegate of Kenya).
+Author: Delegation of Kenya (Muhamad Salman & Jamael Nadeem Omero Setianegara).
 
 Provide in strict 3-part format:
 ### 1. English Note

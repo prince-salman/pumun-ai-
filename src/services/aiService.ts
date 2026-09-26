@@ -34,13 +34,13 @@ export function parseTriLayerResponse(rawText: string): SpeechData {
   const indoMatch = rawText.match(/###\s*3\.\s*Makna[^\n]*\n([\s\S]*?)$/i);
 
   if (engMatch && engMatch[1]) {
-    english = engMatch[1].trim();
+    english = engMatch[1].replace(/[*#]/g, '').trim();
   }
   if (caraMatch && caraMatch[1]) {
-    caraBaca = caraMatch[1].trim();
+    caraBaca = caraMatch[1].replace(/[*#]/g, '').trim();
   }
   if (indoMatch && indoMatch[1]) {
-    indoMeaning = indoMatch[1].trim();
+    indoMeaning = indoMatch[1].replace(/[*#]/g, '').trim();
   }
 
   // Fallback parsing if markdown headers differ slightly
@@ -74,9 +74,9 @@ export function parseTriLayerResponse(rawText: string): SpeechData {
 export function getOfflineFallbackSpeech({ mode = 'GSL', durationSeconds = 90, subtopic = 'General' }: { mode?: string; durationSeconds?: number; subtopic?: string } = {}): SpeechData {
   if (mode === 'POI' || durationSeconds <= 30) {
     return {
-      english: "Honorable Chair, the Delegation of Kenya wishes to clarify that our national framework under the Children Act 2022 prioritizes unconditional school re-enrollment for child survivors. We ask the distinguished delegate: how does your proposal address cross-border victims who lack legal documentation? Kenya yields its time.",
-      caraBaca: "Onorebel Cyeer, di Deleigesyen of Kenya wisyes tu klerifai det aur nasyonal freimwerk ander di Cildren Ekt tu tausen tuenti tu praiyoritaises ankondisyonal skul ri-enrolment for caild servaivors. Wi esk di distingsy-d deliget: hau das yor propozel edres kros-border viktims hu lek ligel dokyumenteisyen? Kenya yilds its taim.",
-      indoMeaning: "Ketua yang terhormat, Delegasi Kenya ingin mengklarifikasi bahwa kerangka hukum nasional kami di bawah Children Act 2022 memprioritaskan pendaftaran ulang sekolah tanpa syarat bagi anak korban. Kami bertanya kepada delegasi terhormat: bagaimana usulan Anda menangani korban lintas batas yang tidak memiliki dokumen resmi? Kenya menyerahkan waktu kembali.",
+      english: "Honorable Chair, the Delegation of Kenya wishes to clarify that our national framework under the Children Act 2022 prioritizes unconditional school re-enrollment for child survivors. We ask the distinguished delegate: how does your proposal address cross-border victims who lack legal documentation? Kenya yields its time to the Dais.",
+      caraBaca: "O-no-re-bel Cyer, de De-le-gei-syon of Ken-ya wi-syes tu kle-ri-fai det awer ne-syo-nal freim-werk an-der de Cil-dren Ekt tu tau-sen twen-ti tu prai-o-ri-tai-ses an-kon-di-syo-nal skul ri en-rol-ment for caild ser-vai-vors. Wi esk de dis-ting-guis-yed de-le-geit: hau das yor pro-po-sal ed-res kros bor-der vik-tims hu lek li-gal do-kyu-men-tei-syon? Ken-ya yilds its taim tu de Dais.",
+      indoMeaning: "Ketua yang terhormat, Delegasi Kenya ingin mengklarifikasi bahwa kerangka hukum nasional kami di bawah Children Act 2022 memprioritaskan pendaftaran ulang sekolah tanpa syarat bagi anak korban. Kami bertanya kepada delegasi terhormat: bagaimana usulan Anda menangani korban lintas batas yang tidak memiliki dokumen resmi? Kenya menyerahkan waktu kembali ke Pimpinan Sidang.",
       wordCount: 52,
       estimatedSeconds: 24,
       isFallback: true
@@ -86,7 +86,7 @@ export function getOfflineFallbackSpeech({ mode = 'GSL', durationSeconds = 90, s
   if (mode === 'MOD' || durationSeconds <= 60) {
     return {
       english: "Honorable Chair and esteemed colleagues, the Republic of Kenya emphasizes that child trafficking survivors suffer severe academic disruption and deep emotional trauma. In Kenya, our Competency-Based Curriculum and Child Protection Units demonstrate that recovery requires dual investment: trauma-informed teaching and accelerated bridge learning. We urge the committee to establish documentation-free school enrollment protocols. An uneducated child survivor is a future re-exploited victim. Kenya stands ready to co-sponsor actionable solutions.",
-      caraBaca: "Onorebel Cyeer end estimd koligs, di Repablik of Kenya emfasaises det caild trefiking servaivors safer sefir akadmik disrapsyen end dip imosyonal troma. In Kenya, aur Kompetensi-Beisd Karikyulum end Caild Proteksyon Yunits demonstreit det rikaveri rikuayers duel infesmen: troma-informd ticing end ekselereited bridj lerning. Wi erdj di komiti tu isteblisy dokyumenteisyen-fri skul enrolmen protokol. En anedyukeited caild servaivor is e fyucer ri-eksploited fiktim. Kenya stens redi tu ko-sponsor eksyonebel solusyens.",
+      caraBaca: "O-no-re-bel Cyer end es-timd ko-ligs, de Re-pab-lik of Ken-ya em-fa-sai-ses det caild tre-fi-king ser-vai-vors sa-fer se-fir a-ka-de-mik dis-rap-syon end dip i-mo-syo-nal tro-ma. In Ken-ya, awer Kom-pe-ten-si Beisd Ke-ri-kyu-lum end Caild Pro-tek-syon Yu-nits de-mon-streit det ri-ka-ve-ri ri-kwairs du-el in-vest-ment: tro-ma in-formd ti-cing end ek-se-le-rei-ted bridj ler-ning. Wi erj de ko-mi-ti tu es-teb-lisy do-kyu-men-tei-syon fri skul en-rol-ment pro-to-kols. En an-e-dyu-kei-ted caild ser-vai-vor is e fyu-cer ri eks-ploi-ted vik-tim. Ken-ya stends re-di tu ko spon-sor ek-syo-na-bel so-lu-syens.",
       indoMeaning: "Ketua yang terhormat dan rekan-rekan yang kami muliakan, Republik Kenya menegaskan bahwa anak korban perdagangan manusia mengalami putus sekolah parah dan trauma emosional yang mendalam. Di Kenya, kurikulum berbasis kompetensi dan Unit Perlindungan Anak kami membuktikan bahwa pemulihan membutuhkan investasi ganda: pelatihan guru berbasis trauma dan program kejar paket. Kami mendesak komite membuat protokol pendaftaran sekolah tanpa hambatan dokumen identitas. Anak korban yang tidak berpendidikan berisiko dieksploitasi kembali. Kenya siap menjadi co-sponsor solusi nyata.",
       wordCount: 75,
       estimatedSeconds: 35,
@@ -97,7 +97,7 @@ export function getOfflineFallbackSpeech({ mode = 'GSL', durationSeconds = 90, s
   // Default 90s GSL Speech
   return {
     english: "Honorable Chair, distinguished delegates of the United Nations Children's Fund:\n\nThe Republic of Kenya comes before this august body to address a global wound that demands our utmost moral and diplomatic clarity. Globally, millions of children have their futures shattered by sexual exploitation and trafficking. Yet, rescue from exploitation is not the finish line; it is merely the starting point. When a child survivor is rescued only to face closed school doors, severe stigma, and an absence of civil documentation, their vulnerability persists.\n\nKenya has taken decisive national steps. Under the Children Act 2022 and our Counter-Trafficking in Persons Act 2010, we have established specialized Child Protection Units and flexible educational pathways through our Competency-Based Curriculum. However, developing nations cannot shoulder this transnational catastrophe alone. Kenya proposes three fundamental pillars: first, universal waiver of birth certificates for immediate school enrollment; second, integrated psychosocial trauma centers in community hubs; and third, multilateral donor matching funds without burdensome conditionalities.\n\nLet us ensure that hope is not a luxury, but an unyielding right for every child. Kenya yields the remainder of its time to the Dais.",
-    caraBaca: "Onorebel Cyeer, distingsy-d deligets of di Yunaited Neisyens Cildrens Fan:\n\nDi Repablik of Kenya kams bifor dis ogas bodi tu edres e globel wund det dimens aur atmost moral end diplomatik kleriti. Globeli, milyens of cildren hef der fyucers syeterd bai seksyuel eksploiteisyen end trefiking. Yet, reskyu from eksploiteisyen is not di finisy lain; it is mirli di starting poin. Wen e caild servaivor is reskyud onli tu feis klosd skul dors, sefir stigma, end en ebsens of sifil dokyumenteisyen, der falnerabiliti persists.\n\nKenya hes teiken disaisif nasyonal steps. Ander di Cildren Ekt tu tausen tuenti tu end aur Kaunter-Trefiking in Persons Ekt tu tausen ten, wi hef isteblisy-d spesyalaizd Caild Proteksyon Yunits end fleksibel edyukeisyonal petweis tru aur Kompetensi-Beisd Karikyulum. Hawefer, difeloping neisyens kenot syolder dis tresnasyonal ketestrofi elon. Kenya propozes tri fandementel pilars: ferst, yunifersel wei-fer of bert sertifikets for imidyet skul enrolmen; sekon, integreited saikosyosyel troma senters in komyuniti habs; end terd, maltileterel donor mecing fans widaut berdenseum kondisyonelitis.\n\nLet as insyur det hop is not e laksyuri, bat en anyilding rait for efri caild. Kenya yilds di rimeinder of its taim tu di Dais.",
+    caraBaca: "O-no-re-bel Cyer, dis-ting-guis-yed de-le-geits of de Yu-nai-ted Nei-syens Cil-drens Fand:\n\nDe Re-pab-lik of Ken-ya kams bi-for dis o-gast bo-di tu ed-res e glo-bal wund det di-mends awer at-moust mo-ral end dip-lo-ma-tik kle-ri-ti. Glo-ba-li, mil-yens of cil-dren hev der fyu-cers sye-terd bai sek-syu-al eks-ploi-tei-syon end tre-fi-king. Yet, res-kyu from eks-ploi-tei-syon is not de fi-nisy lain; it is mir-li de star-ting point. Wen e caild ser-vai-vor is res-kyud on-li tu feis klosd skul dors, se-fir stig-ma, end en eb-sens of si-vil do-kyu-men-tei-syon, der val-ne-ra-bi-li-ti per-sists.\n\nKen-ya hes tei-ken di-sai-sif ne-syo-nal steps. An-der de Cil-dren Ekt tu tau-sen twen-ti tu end awer Kawn-ter Tre-fi-king in Per-sons Ekt tu tau-sen ten, wi hev es-teb-lisyd spe-sya-laizd Caild Pro-tek-syon Yu-nits end flek-si-bel e-dyu-kei-syo-nal pat-weis tru awer Kom-pe-ten-si Beisd Ke-ri-kyu-lum. Hau-e-ver, de-ve-lo-ping nei-syens ke-not syol-der dis trens-ne-syo-nal ke-tas-tro-fi e-lon. Ken-ya pro-po-ses tri fan-da-men-tal pi-lars: ferst, yu-ni-ver-sal wei-ver of bert ser-ti-fi-kets for i-mi-dyet skul en-rol-ment; se-kond, in-te-grei-ted sai-ko-syo-syal tro-ma sen-ters in kom-yu-ni-ti habs; end terd, mal-ti-la-te-ral do-nor me-cing fands wid-awt ber-den-sam kon-di-syo-na-li-tis.\n\nLet as in-syur det houp is not e lak-syu-ri, bat en an-yil-ding rait for ev-ri caild. Ken-ya yilds de ri-mein-der of its taim tu de Dais.",
     indoMeaning: "Ketua yang terhormat, delegasi UNICEF yang mulia:\n\nRepublik Kenya hadir di hadapan majelis terhormat ini untuk mengatasi luka kemanusiaan global yang menuntut kejelasan moral dan diplomatik kita. Di seluruh dunia, jutaan anak masa depannya hancur akibat eksploitasi seksual dan perdagangan manusia. Namun, penyelamatan bukanlah garis akhir; itu hanyalah titik awal. Ketika seorang anak korban diselamatkan hanya untuk menghadapi pintu sekolah yang tertutup, stigma sosial yang kejam, dan ketiadaan dokumen kependudukan, kerentanan mereka akan terus berlanjut.\n\nKenya telah mengambil langkah nasional yang tegas. Melalui Children Act 2022 dan UU Anti-Perdagangan Orang 2010, kami telah mendirikan Unit Perlindungan Anak dan kurikulum berbasis kompetensi yang fleksibel. Namun, negara-negara berkembang tidak dapat memikul bencana transnasional ini sendirian. Kenya mengusulkan tiga pilar fundamental: pertama, penghapusan syarat akta lahir untuk pendaftaran sekolah darurat; kedua, pusat trauma psikososial terpadu di sekolah; dan ketiga, dana kemitraan donor multilateral tanpa syarat yang memberatkan kedaulatan negara.\n\nMari kita pastikan bahwa harapan bukanlah sebuah kemewahan, melainkan hak mutlak bagi setiap anak di bumi. Kenya menyerahkan sisa waktunya kembali kepada pimpinan sidang.",
     wordCount: 198,
     estimatedSeconds: 91,
@@ -125,7 +125,7 @@ export async function generateDiplomaticSpeech({
   const targetWordCount = Math.round((durationSeconds / 60) * 125);
 
   const systemPrompt = `You are the Virtual Co-Delegate and Speechwriter for the Republic of Kenya at PUMUN Regeneration 2026 (UNICEF Committee).
-Delegate Name: Muhamad Salman (Solo Delegate).
+Delegate Names: Muhamad Salman & Jamael Nadeem Omero Setianegara (Dual Delegation representing the Republic of Kenya at UNICEF).
 Committee Agenda: Strengthening educational opportunities and long-term prospects for child survivors of sexual exploitation and trafficking.
 Difficulty: Intermediate.
 
@@ -147,8 +147,8 @@ Your response MUST be strictly structured in three distinct sections with markdo
 ### 1. English Speech (Official Diplomatic Text)
 (Write the official English diplomatic speech. Address the Dais properly: "Honorable Chair, distinguished delegates...". Incorporate Kenya's stance, laws, and constructive solutions. Yield time at the end: "Kenya yields its time to the Dais.")
 
-### 2. Cara Baca (Panduan Lafal Fonetik Indonesia)
-(Write the exact phonetic pronunciation guide in Indonesian spelling for every single word so Salman can read it smoothly out loud without stumbling. E.g. write "Honorable Chair" as "Onorebel Cyeer", "distinguished delegates" as "distingsy-d deligets", "psychosocial" as "saikosyosyel", "survivors" as "servaivors".)
+### 2. Cara Baca (Panduan Lafal Suku Kata Indonesia)
+(WAJIB tuliskan panduan lafal fonetik suku kata Bahasa Indonesia santai bertanda hubung (-) per kata atau suku kata yang sangat mudah dibaca orang Indonesia biasa tanpa keseleo lidah. DILARANG KERAS membuat ejaan aneh seperti 'dhe', 'cyaild', 'servaifers', 'eprisyieits', 'dhet', 'dhis'. Tuliskan ejaan wajar: 'O-no-re-bel Cyer, dis-ting-guis-yed de-le-geits of de Cil-drens Fand...'. Tuliskan lengkap untuk seluruh isi pidato tanpa terputus.)
 
 ### 3. Makna Bahasa Indonesia (Terjemahan & Penjelasan)
 (Provide a clear, sentence-by-sentence Indonesian translation and explanation of the strategic points so Salman understands 100% of what he is saying.)`;
@@ -212,10 +212,10 @@ export function getOfflineAnalysisFallback(countryName: string, rawSpeechOrIdea:
       kenyaImpact: 'Mengancam / Perlu Direspon',
       kenyaStrategy: 'Jangan tolak teknologi mereka, tetapi ingatkan bahwa anak penyintas di garis depan perbatasan membutuhkan tempat penampungan aman, konseling trauma, dan sekolah fisik terlebih dahulu sebelum regulasi siber.',
       counterSpeech: {
-        english: 'Honorable Chair, the Delegation of Kenya appreciates the focus on digital safety. However, Kenya reminds this committee that child survivors in transit corridors require immediate food, shelter, and trauma-informed basic schooling before they can benefit from cyber literacy. We urge donor states to fund holistic grassroots rehabilitation rather than conditional technological mandates. Kenya yields back.',
-        caraBaca: 'Onorebel Cyeer, dhe Deligeisyen of Kenya eprisyieits dhe fokes on dijitel seifti. Hawefer, Kenya rimainds dhis komiti dhet cyaild servaifers in trensit koridors rikwair imidyet fud, syelter, end troma-informd beysik skuling bifor dhei ken benefit from sayber literesi. Wi erj doner stets tu fand holistik gresruts rihebiliteisyen radher dhen kondisyenel teknolojikel mandets. Kenya yilds bek.',
-        indoMeaning: 'Pimpinan yang terhormat, Delegasi Kenya menghargai fokus pada keselamatan digital. Namun, Kenya mengingatkan komite ini bahwa anak-anak penyintas di koridor transit membutuhkan makanan, tempat aman, dan sekolah dasar peka-trauma terlebih dahulu sebelum mereka bisa memanfaatkan literasi siber. Kami mendesak negara donor mendanai pemulihan akar rumput yang menyeluruh ketimbang mandat teknologi bersyarat. Kenya kembalikan waktu.',
-        wordCount: 58,
+        english: 'Honorable Chair, the Delegation of Kenya appreciates the focus on digital safety. However, Kenya reminds this committee that child survivors in transit corridors require immediate food, shelter, and trauma-informed basic schooling before they can benefit from cyber literacy. We urge donor states to fund holistic grassroots rehabilitation rather than conditional technological mandates. Kenya yields back its time to the Dais.',
+        caraBaca: 'O-no-re-bel Cyer, de De-le-gei-syon of Ken-ya e-pre-si-yeits de fo-kes on di-ji-tal seif-ti. Hau-e-ver, Ken-ya ri-mainds dis ko-mi-ti det caild ser-vai-ver in tren-sit ko-ri-dor ri-kwair i-mi-dyet fud, syel-ter, end tro-ma in-formd bei-sik sku-ling bi-for dei ken be-ne-fit from sai-ber li-te-ra-si. Wi erj do-nor stets tu fand ho-lis-tik gres-ruts ri-ha-bi-li-tei-syon ra-der den kon-di-syo-nal tek-no-lo-ji-kal men-deits. Ken-ya yilds its taim tu de Dais.',
+        indoMeaning: 'Pimpinan yang terhormat, Delegasi Kenya menghargai fokus pada keselamatan digital. Namun, Kenya mengingatkan komite ini bahwa anak-anak penyintas di koridor transit membutuhkan makanan, tempat aman, dan sekolah dasar peka-trauma terlebih dahulu sebelum mereka bisa memanfaatkan literasi siber. Kami mendesak negara donor mendanai pemulihan akar rumput yang menyeluruh ketimbang mandat teknologi bersyarat. Kenya kembalikan waktu ke Pimpinan Sidang.',
+        wordCount: 59,
         estimatedSeconds: 30,
         isFallback: true
       }
@@ -229,10 +229,10 @@ export function getOfflineAnalysisFallback(countryName: string, rawSpeechOrIdea:
       kenyaImpact: 'Menguntungkan',
       kenyaStrategy: 'Sekutu emas! Segera sambut baik pidato mereka di podium, dan ajak mereka mendanai inisiatif SAFE-LEARN Transit Pass yang dirintis oleh Kenya.',
       counterSpeech: {
-        english: 'Distinguished Dais, Kenya wholeheartedly welcomes the progressive stance of the distinguished delegate. Cross-border child survivors desperately need unconditional multilateral funding that respects local dignity. Kenya warmly invites the delegate to join our coalition and co-sponsor our SAFE-LEARN framework to guarantee swift educational re-enrollment for all survivors. Kenya yields its time.',
-        caraBaca: 'Distingsy-d Dais, Kenya houlhertedli welkems dhe progresif stens of dhe distingsy-d deliget. Kros-border cyaild servaifers desperetli nid enkondisyenel maltileterel fanding dhet rispeks lokel digniti. Kenya wormli infaits dhe deliget tu joyn awer koalisyen end ko-sponsor awer SEIF-LERN freimwerk tu gerenti swift edyukeyisyenel ri-enrolment for ol servaifers. Kenya yilds its taim.',
-        indoMeaning: 'Pimpinan Sidang, Kenya menyambut hangat sikap progresif delegasi terhormat. Anak-anak korban lintas batas sangat membutuhkan pendanaan multilateral tanpa syarat yang menghormati martabat lokal. Kenya dengan hangat mengundang delegasi tersebut untuk bergabung dalam koalisi kami dan menjadi co-sponsor kerangka kerja SAFE-LEARN demi menjamin pendaftaran sekolah yang cepat bagi seluruh penyintas. Kenya kembalikan waktu.',
-        wordCount: 52,
+        english: 'Distinguished Dais, Kenya wholeheartedly welcomes the progressive stance of the distinguished delegate. Cross-border child survivors desperately need unconditional multilateral funding that respects local dignity. Kenya warmly invites the delegate to join our coalition and co-sponsor our SAFE-LEARN framework to guarantee swift educational re-enrollment for all survivors. Kenya yields its time to the Dais.',
+        caraBaca: 'Dis-ting-guis-yed Dais, Ken-ya hol-har-ted-li wel-kems de pro-gre-sif stens of de dis-ting-guis-yed de-le-geit. Kros bor-der caild ser-vai-vor des-pe-ret-li nid an-kon-di-syo-nal mal-ti-la-te-ral fan-ding det ris-peks lo-kal dig-ni-ti. Ken-ya worm-li in-vaits de de-le-geit tu join awer ko-a-li-si end ko spon-sor awer SEIF-LERN freim-werk tu ge-ren-ti swift e-dyu-kei-syo-nal ri en-rol-ment for ol ser-vai-vors. Ken-ya yilds its taim tu de Dais.',
+        indoMeaning: 'Pimpinan Sidang, Kenya menyambut hangat sikap progresif delegasi terhormat. Anak-anak korban lintas batas sangat membutuhkan pendanaan multilateral tanpa syarat yang menghormati martabat lokal. Kenya dengan hangat mengundang delegasi tersebut untuk bergabung dalam koalisi kami dan menjadi co-sponsor kerangka kerja SAFE-LEARN demi menjamin pendaftaran sekolah yang cepat bagi seluruh penyintas. Kenya kembalikan waktu ke Pimpinan Sidang.',
+        wordCount: 53,
         estimatedSeconds: 28,
         isFallback: true
       }
@@ -246,10 +246,10 @@ export function getOfflineAnalysisFallback(countryName: string, rawSpeechOrIdea:
     kenyaImpact: 'Netral',
     kenyaStrategy: 'Jaga hubungan diplomatik yang bersahabat. Tegaskan posisi Kenya di bawah Children Act 2022 bahwa anak korban tidak boleh dihambat oleh ketiadaan akta lahir.',
     counterSpeech: {
-      english: `Honorable Chair, the Republic of Kenya notes the valuable points raised by the distinguished delegate of ${countryName}. Kenya underscores that real rehabilitation demands two immediate actions: removing birth certificate requirements for emergency school enrollment, and embedding trauma counselors in community shelters. Kenya stands ready to collaborate constructively. We yield our time.`,
-      caraBaca: `Onorebel Cyeer, dhe Repablik of Kenya nowts dhe felyuebel poins reisd bai dhe distingsy-d deliget of ${countryName}. Kenya enderskors dhet riel rihebiliteisyen dimends tu imidyet eksyens: rimufing berth sertifiket rikwairmens for imerjensi skul enrolmen, end embeding troma kawnselors in komyuniti syelters. Kenya stends redi tu koleboreit konstruktifli. Wi yild awer taim.`,
-      indoMeaning: `Pimpinan yang terhormat, Republik Kenya mencatat poin-poin berharga yang disampaikan oleh delegasi terhormat ${countryName}. Kenya menegaskan bahwa pemulihan nyata menuntut dua tindakan nyata: menghapus syarat akta lahir untuk pendaftaran sekolah darurat, dan menempatkan konselor trauma di tempat penampungan masyarakat. Kenya siap berkolaborasi secara konstruktif. Kami kembalikan waktu.`,
-      wordCount: 55,
+      english: `Honorable Chair, the Republic of Kenya notes the valuable points raised by the distinguished delegate of ${countryName}. Kenya underscores that real rehabilitation demands two immediate actions: removing birth certificate requirements for emergency school enrollment, and embedding trauma counselors in community shelters. Kenya stands ready to collaborate constructively. Kenya yields its time to the Dais.`,
+      caraBaca: `O-no-re-bel Cyer, de Re-pab-lik of Ken-ya nowts de vel-yu-a-bel points reisd bai de dis-ting-guis-yed de-le-geit of ${countryName}. Ken-ya an-der-skors det ri-al ri-ha-bi-li-tei-syon di-mends tu i-mi-dyet ek-syens: ri-mu-ving bert ser-ti-fi-ket ri-kwair-ments for i-mer-jen-si skul en-rol-ment, end em-bed-ding tro-ma kawn-se-lor in kom-yu-ni-ti syel-ter. Ken-ya stends re-di tu ko-la-bo-reit kon-struk-tif-li. Ken-ya yilds its taim tu de Dais.`,
+      indoMeaning: `Pimpinan yang terhormat, Republik Kenya mencatat poin-poin berharga yang disampaikan oleh delegasi terhormat ${countryName}. Kenya menegaskan bahwa pemulihan nyata menuntut dua tindakan nyata: menghapus syarat akta lahir untuk pendaftaran sekolah darurat, dan menempatkan konselor trauma di tempat penampungan masyarakat. Kenya siap berkolaborasi secara konstruktif. Kenya kembalikan waktu ke Pimpinan Sidang.`,
+      wordCount: 56,
       estimatedSeconds: 30,
       isFallback: true
     }
@@ -286,7 +286,7 @@ You MUST provide your response strictly structured in these 5 sections with mark
 (Naskah pidato resmi bahasa Inggris 30-40 detik yang lugas. Wajib buka: "Honorable Chair..." dan tutup: "Kenya yields its time to the Dais.")
 
 ### 4. Cara Baca Sanggahan
-(WAJIB tuliskan ejaan lafal fonetik suku kata Bahasa Indonesia santai untuk seluruh naskah Inggris di atas! JANGAN tulis bahasa Inggris lagi. Contoh: "O-nor-e-bel Cyeer, de de-le-ge-syon of Ken-ya nowts... Ken-ya yilds its taim tu de Dais.")
+(WAJIB tuliskan panduan lafal fonetik suku kata Bahasa Indonesia santai bertanda hubung (-) per kata atau suku kata untuk seluruh naskah Inggris di atas! JANGAN tulis bahasa Inggris lagi. DILARANG KERAS membuat ejaan aneh seperti 'dhe', 'cyaild', 'servaifers', 'eprisyieits', 'dhet', 'dhis'. Tuliskan ejaan wajar: 'O-no-re-bel Cyer, de De-le-gei-syon of Ken-ya nowts... Ken-ya yilds its taim tu de Dais.')
 
 ### 5. Makna Sanggahan
 (Terjemahan bahasa Indonesia lengkap dari pidato sanggahan tersebut.)`;
@@ -332,19 +332,19 @@ Tolong rangkumkan intinya, beri tahu taktik untuk Kenya, dan buatkan pidato bala
     const caraMatch = rawContent.match(/(?:###|\*\*|#)?\s*4\.\s*Cara Baca[^\n]*\n([\s\S]*?)(?=(?:###|\*\*|#)?\s*5\.|$)/i);
     const indoMatch = rawContent.match(/(?:###|\*\*|#)?\s*5\.\s*Makna[^\n]*\n([\s\S]*?)$/i);
 
-    const summaryIndo = summaryMatch ? summaryMatch[1].trim() : `Delegasi ${countryName} menyampaikan poin terkait topik komite.`;
-    const kenyaStrategy = strategyMatch ? strategyMatch[1].trim() : 'Tegaskan posisi Kenya dan usulkan kerja sama konstruktif.';
-    let english = engMatch ? engMatch[1].trim() : '';
-    let caraBaca = caraMatch ? caraMatch[1].trim() : '';
-    let indoMeaning = indoMatch ? indoMatch[1].trim() : '';
+    const summaryIndo = (summaryMatch ? summaryMatch[1] : `Delegasi ${countryName} menyampaikan poin terkait topik komite.`).replace(/[*#]/g, '').trim();
+    const kenyaStrategy = (strategyMatch ? strategyMatch[1] : 'Tegaskan posisi Kenya dan usulkan kerja sama konstruktif.').replace(/[*#]/g, '').trim();
+    let english = (engMatch ? engMatch[1] : '').replace(/[*#]/g, '').trim();
+    let caraBaca = (caraMatch ? caraMatch[1] : '').replace(/[*#]/g, '').trim();
+    let indoMeaning = (indoMatch ? indoMatch[1] : '').replace(/[*#]/g, '').trim();
 
     if (!english) {
       // Fallback splitting if headings differed
       const parts = rawContent.split(/###\s*\d+\.|\*\*\d+\.|\d+\.\s*(?:Rangkuman|Sikap|Sanggahan|Cara Baca|Makna)/i);
       if (parts.length >= 4) {
-        english = parts[3].trim();
-        caraBaca = parts[4] ? parts[4].trim() : english;
-        indoMeaning = parts[5] ? parts[5].trim() : '';
+        english = parts[3].replace(/[*#]/g, '').trim();
+        caraBaca = parts[4] ? parts[4].replace(/[*#]/g, '').trim() : english;
+        indoMeaning = parts[5] ? parts[5].replace(/[*#]/g, '').trim() : '';
       }
     }
 

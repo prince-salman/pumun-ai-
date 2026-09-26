@@ -9,8 +9,8 @@ const DEFAULT_SETTINGS: SettingsState = {
   selectedModel: 'nemotron-3-ultra',
   speechRate: 0.95,
   delegateName: 'Muhamad Salman',
-  partnerName: 'Nata (Berhalangan)',
-  isSolo: true,
+  partnerName: 'Jamael Nadeem Omero Setianegara',
+  isSolo: false,
   theme: 'dark'
 };
 
@@ -19,7 +19,12 @@ export function useSettings() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
+        const parsed = JSON.parse(saved);
+        if (!parsed.partnerName || parsed.partnerName.includes('Berhalangan') || parsed.partnerName.includes('Nata')) {
+          parsed.partnerName = 'Jamael Nadeem Omero Setianegara';
+          parsed.isSolo = false;
+        }
+        return { ...DEFAULT_SETTINGS, ...parsed };
       }
     } catch (e) {
       console.warn('Failed to load settings from localStorage:', e);

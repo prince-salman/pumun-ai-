@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Radar, 
   Volume2, 
@@ -45,46 +45,112 @@ export default function DebateRadar({ settings }: DebateRadarProps) {
   // Voice recording state
   const [isListeningMic, setIsListeningMic] = useState(false);
   const [speechRecognitionSupported, setSpeechRecognitionSupported] = useState(false);
-  const [recognitionInstance, setRecognitionInstance] = useState<any>(null);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const isListeningMicRef = useRef(false);
+  const baseRebuttalRef = useRef('');
+  const recordingTimerRef = useRef<any>(null);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       setSpeechRecognitionSupported(true);
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'id-ID';
-
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setRebuttalInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
-        setIsListeningMic(false);
-      };
-
-      recognition.onerror = () => {
-        setIsListeningMic(false);
-      };
-
-      recognition.onend = () => {
-        setIsListeningMic(false);
-      };
-
-      setRecognitionInstance(recognition);
     }
+    return () => {
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (_) {}
+      }
+    };
   }, []);
 
   const handleToggleMic = () => {
-    if (!recognitionInstance) return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
     if (isListeningMic) {
-      recognitionInstance.stop();
+      isListeningMicRef.current = false;
       setIsListeningMic(false);
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (_) {}
+      }
     } else {
       try {
-        recognitionInstance.start();
+        if (recognitionRef.current) {
+          try { recognitionRef.current.stop(); } catch (_) {}
+        }
+
+        baseRebuttalRef.current = rebuttalInput;
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'id-ID';
+
+        recognition.onresult = (event: any) => {
+          let finalChunk = '';
+          let interimChunk = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            const text = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalChunk += text + ' ';
+            } else {
+              interimChunk += text;
+            }
+          }
+          if (finalChunk) {
+            baseRebuttalRef.current = baseRebuttalRef.current ? `${baseRebuttalRef.current.trim()} ${finalChunk.trim()}` : finalChunk.trim();
+            setRebuttalInput(baseRebuttalRef.current);
+          } else if (interimChunk) {
+            setRebuttalInput(baseRebuttalRef.current ? `${baseRebuttalRef.current.trim()} ${interimChunk.trim()}` : interimChunk.trim());
+          }
+        };
+
+        recognition.onerror = (e: any) => {
+          console.warn('Speech recognition warning:', e.error);
+          if (e.error === 'not-allowed') {
+            isListeningMicRef.current = false;
+            setIsListeningMic(false);
+            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+          }
+        };
+
+        recognition.onend = () => {
+          if (isListeningMicRef.current) {
+            try {
+              recognition.start();
+            } catch (_) {
+              setTimeout(() => {
+                if (isListeningMicRef.current) {
+                  try {
+                    recognition.start();
+                  } catch (_) {
+                    isListeningMicRef.current = false;
+                    setIsListeningMic(false);
+                    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+                  }
+                }
+              }, 250);
+            }
+          } else {
+            setIsListeningMic(false);
+            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+          }
+        };
+
+        recognitionRef.current = recognition;
+        recognition.start();
+        isListeningMicRef.current = true;
         setIsListeningMic(true);
+        setRecordingSeconds(0);
+        if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = setInterval(() => {
+          setRecordingSeconds((prev) => prev + 1);
+        }, 1000);
       } catch (e) {
         console.error('Speech recognition error:', e);
+        isListeningMicRef.current = false;
+        setIsListeningMic(false);
       }
     }
   };
@@ -370,7 +436,7 @@ export default function DebateRadar({ settings }: DebateRadarProps) {
                   <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block mb-0.5">
                     🗣️ Cara Baca (Lafalkan ini langsung):
                   </span>
-                  <p className="text-xs font-mono font-medium text-slate-900 leading-relaxed">
+                  <p className="text-xs font-sans font-semibold tracking-wide text-slate-900 leading-relaxed">
                     "{selectedSubtopic.motionCaraBaca}"
                   </p>
                 </div>
@@ -444,7 +510,7 @@ export default function DebateRadar({ settings }: DebateRadarProps) {
                 <div className="p-5 rounded-xl border border-slate-200 text-sm leading-relaxed min-h-[140px]">
                   {subtopicSpeechTab === 'caraBaca' && (
                     <div className="bg-amber-50/70 p-4 rounded-xl border border-amber-200">
-                      <p className="text-slate-900 font-mono text-base leading-loose">
+                      <p className="text-slate-900 font-sans font-semibold tracking-wide text-base leading-loose">
                         "{selectedSubtopic.readySpeech.caraBaca}"
                       </p>
                     </div>
@@ -504,20 +570,21 @@ export default function DebateRadar({ settings }: DebateRadarProps) {
             <div className="pt-2 border-t border-slate-200 space-y-2">
               <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
                 <span>Atau Masukkan Apa yang Anda Dengar:</span>
-                {speechRecognitionSupported && (
                   <button
                     type="button"
                     onClick={handleToggleMic}
-                    className={`text-[11px] px-2 py-0.5 rounded-full flex items-center gap-1 border transition ${
+                    className={`text-[11px] px-2.5 py-0.5 rounded-full flex items-center gap-1 border transition font-bold ${
                       isListeningMic
-                        ? 'bg-rose-100 text-rose-700 border-rose-300 animate-pulse'
+                        ? 'bg-rose-600 text-white border-rose-700 animate-pulse shadow-sm'
                         : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
                     }`}
+                    title={isListeningMic ? "Klik untuk menghentikan rekaman" : "Merekam suara tanpa batas waktu (bisa lama)"}
                   >
                     <Mic className="w-3 h-3" />
-                    {isListeningMic ? 'Mendengarkan...' : 'Pakai Mic'}
+                    {isListeningMic
+                      ? `Merekam ${Math.floor(recordingSeconds / 60)}:${(recordingSeconds % 60) < 10 ? '0' : ''}${recordingSeconds % 60} (Selesai)`
+                      : 'Pakai Mic (Bisa Lama)'}
                   </button>
-                )}
               </label>
 
               <textarea
